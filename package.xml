@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package>
+  <name>hand_eye_calibration</name>
+  <version>0.0.0</version>
+  <description>Calibration package for hand-eye calibration in ROS and C/C++ </description>
+  <maintainer email="eirikwha@stud.ntnu.no">Eirik Wik Haug</maintainer>
+  <license>MIT</license>
+  <url type="website">http://github.com/eirikwha</url>
+  <author email="eirikwha@stud.ntnu.no">Eirik Wik Haug</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>eigen3</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>yaml-cpp</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>eigen3</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>yaml-cpp</run_depend>
+</package>

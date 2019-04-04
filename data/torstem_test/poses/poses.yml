@@ -1,0 +1,6 @@
+%YAML:1.0
+---
+poses:
+   - "pose01.yml"
+   - "pose02.yml"
+   - "calib1_pose.yml"
