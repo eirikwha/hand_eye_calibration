@@ -2,9 +2,9 @@
 // Created by eirik on 30.03.19.
 //
 
+#include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <ros/ros.h>
 #include <opencv2/core/core.hpp>
 
 #include <pcl/console/print.h>
@@ -34,6 +34,9 @@ int width = 1920;
 int n_cloud = 0, n_pose = 0;
 
 //TODO: MAKE IT WORK FOR OTHER POINTCLOUDS AS WELL
+//TODO: Add a function that runs matching (findcorrners or some 6d pose est, and only saves if matches are found)
+//TODO: Maybe run in livemode?
+//TODO: Publish image to view in rviz
 
 void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
 
@@ -89,27 +92,30 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
 
 void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 
-    vector<float> pose;
-    pose.push_back(robotPose.pose.position.x);
-    pose.push_back(robotPose.pose.position.y);
-    pose.push_back(robotPose.pose.position.z);
-    pose.push_back(robotPose.pose.orientation.x);
-    pose.push_back(robotPose.pose.orientation.y);
-    pose.push_back(robotPose.pose.orientation.z);
-    pose.push_back(robotPose.pose.orientation.w);
+    // For every recorded point cloud, a pose is recorded. n_pose and n_cloud manages the sequencing of the recording.
+    if (n_pose < n_cloud){
+        vector<float> pose;
+        pose.push_back(robotPose.pose.position.x);
+        pose.push_back(robotPose.pose.position.y);
+        pose.push_back(robotPose.pose.position.z);
+        pose.push_back(robotPose.pose.orientation.x);
+        pose.push_back(robotPose.pose.orientation.y);
+        pose.push_back(robotPose.pose.orientation.z);
+        pose.push_back(robotPose.pose.orientation.w);
 
-    ostringstream oss;
-    oss << setw(2) << std::setfill('0') << n_pose;
-    std::string filename = posePath + string("/") + string("pose") + oss.str() + string(".yml");
+        ostringstream oss;
+        oss << setw(2) << std::setfill('0') << n_pose;
+        std::string filename = posePath + string("/") + string("pose") + oss.str() + string(".yml");
 
-    FileStorage fs(filename, FileStorage::WRITE);
-    fs << "pose" << pose;
-    fs.release();
-    ++n_pose;
+        FileStorage fs(filename, FileStorage::WRITE);
+        fs << "pose" << pose;
+        fs.release();
+        ++n_pose;
+    }
 }
 
 void printHelp(int, char **argv) {
-    cout << "Syntax is: "<< argv[0] <<  "/listenTopic /pointCloudTopic /poseTopic /image/path/ /pose/path/ \n" << endl;
+    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /image/path/ /pose/path/ \n" << endl;
 }
 
 /* ---[ */
@@ -129,17 +135,18 @@ main (int argc, char** argv)
     pointCloudPath = argv[3];
     posePath = argv[4];
 
-    ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << " and calib1_pose at: " << poseTopic);
-    cout << endl;
+    ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << " and calib1_pose at: " << poseTopic << endl);
+
+    ROS_INFO_STREAM("Wait 20 seconds for the camera to boot up..." << endl);
+    //ros::time(20).sleep();
 
     // Initialize ROS
     ros::init(argc, argv, "PoseRecorder");
     ros::NodeHandle nh;
-
     // Create a ROS subscriber for the input point cloud
     ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
-    //ros::topic::waitForMessage<geometry_msgs::PoseStamped>(poseTopic);
 
+    // Create a ROS subscriber for the input pose
     ros::Subscriber sub2 = nh.subscribe(poseTopic,1,poseCallback);
     ros::spin();
 }

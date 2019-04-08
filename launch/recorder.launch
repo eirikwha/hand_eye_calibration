@@ -12,6 +12,6 @@
 	<!-- Recorder node -->
 	
 	<node name="recorder" pkg="hand_eye_calibration" 		
-	type="recorder" args="/pointcloud_republish /poseOut /home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1 /home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1"/>
+	type="recorder" args="/pointcloud_republish /robot_state /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/img /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/pose"/>
 
 </launch>
