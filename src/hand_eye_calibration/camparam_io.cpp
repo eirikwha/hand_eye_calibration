@@ -16,7 +16,7 @@ void readCamParams(const char* filePath, cv::Mat &cameraMatrix, cv::Mat &distCoe
     FileStorage fs2(filePath, FileStorage::READ);
 
 // first method: use (type) operator on FileNode.
-    int frameCount = (int) fs2["frameCount"];
+//    int frameCount = (int) fs2["frameCount"];
     String date;
 
 // second method: use FileNode::operator >>
@@ -24,7 +24,7 @@ void readCamParams(const char* filePath, cv::Mat &cameraMatrix, cv::Mat &distCoe
     fs2["cameraMatrix"] >> cameraMatrix;
     fs2["distCoeffs"] >> distCoeffs;
     cout << "Loaded calibration data" << endl << "------------------------" << endl
-        << "frameCount: " << frameCount << endl
+//        << "frameCount: " << frameCount << endl
         << "calibration date: " << date
         << "camera matrix: \n" << cameraMatrix << endl
         << "distortion coeffs: \n" << distCoeffs << endl

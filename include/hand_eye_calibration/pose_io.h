@@ -21,7 +21,7 @@ void readPoseList(const char* filePath,  std::vector <std::string> &poses);
 
 geometry_msgs::PoseStamped vectorToPose(std::vector<float> &poseVec);
 
-void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4d &t);
+void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4f &t);
 
 void readRobotTransformation(std::vector<Eigen::Matrix3f> &rotationRB_vec, std::vector<Eigen::Vector3f> &translationRB_vec);
 

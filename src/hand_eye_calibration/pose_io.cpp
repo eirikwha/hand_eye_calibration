@@ -21,7 +21,7 @@ void writePose(geometry_msgs::PoseStamped &robotPose, string folderPath, int n, 
 {
     vector<float> pose;
     if (isEigen4x4){
-        Eigen::Matrix4d t;
+        Eigen::Matrix4f t;
         convertTo4x4(robotPose,t);
 
         for (int row =0; row < 4; row++){
@@ -127,11 +127,11 @@ geometry_msgs::PoseStamped vectorToPose(vector<float> &poseVec){
     return pose;
 }
 
-void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4d &t)
+void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4f &t)
 {
 
     tf::Quaternion q(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
-    tf::Matrix3x3 m(q);
+    tf::Matrix3x3 m(q.normalized());
 
     t(0, 0) = (float) m[0][0]; t(0, 1) = (float) m[0][1]; t(0, 2) = (float) m[0][2]; t(0, 3) = (float) pose.pose.position.x;
     t(1, 0) = (float) m[1][0]; t(1, 1) = (float) m[1][1]; t(1, 2) = (float) m[1][2]; t(1, 3) = (float) pose.pose.position.y;
@@ -143,7 +143,7 @@ void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4d &t)
 void readRobotTransformation(vector<Eigen::Matrix3f> &rotationRB_vec, vector<Eigen::Vector3f> &translationRB_vec){ // TODO: NOT REALLY NEEDED, BACK/FOURTH
 
     vector<string> poselist;
-    readPoseList("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_pose/poselist.yml",poselist);
+    listPoses("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/pose/","yml",poselist);
 
     for (int i = 0; i < poselist.size(); i++){
         Eigen::Matrix3f rotationRB;

@@ -9,10 +9,10 @@
 
 using namespace std;
 
-int numImages = 5; // set this value for desired number of input images (better to parse or pass as argument in main)
-int numCornersHor = 10;
-int numCornersVer = 6;
-int numSquares = numCornersHor * numCornersVer;
+int numImages = 20; // set this value for desired number of input images (better to parse or pass as argument in main)
+constexpr int numCornersHor = 9;
+constexpr int numCornersVer = 7;
+constexpr int numSquares = numCornersHor * numCornersVer;
 cv::Size board_sz = cv::Size(numCornersHor, numCornersVer);
 
 
@@ -43,7 +43,7 @@ tuple<vector<cv::Point2f>,bool> findCorners(cv::Mat image) {
         return make_tuple(corners, found);
     }
     else{
-        printf("No corners found");
+        return make_tuple(corners,found);
     }
 }
 
@@ -74,10 +74,10 @@ void saveCorners(vector<vector<cv::Point2f>> &pointsImage, vector<vector<cv::Poi
     string n;
     cin >> n;
     if (n == "y" || n == "yes") {*/
-        pointsImage.push_back(corners);
-        points3d.push_back(obj);
+    pointsImage.push_back(corners);
+    points3d.push_back(obj);
 
-        printf("Corners stored.\n");
+    printf("Corners stored.\n");
     /*} else {
         printf("Corners rejected.\n");
         return;

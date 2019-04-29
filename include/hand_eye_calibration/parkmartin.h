@@ -10,12 +10,10 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
+    Eigen::Vector3f getLogTheta(Eigen::Matrix3f R);
 
-Eigen::Vector3f getLogTheta(Eigen::Matrix3f R);
+    Eigen::Matrix3f invsqrt(Eigen::Matrix3f M);
 
-void performEstimation(std::vector<Eigen::Matrix3f> rotationRB_vec, std::vector<Eigen::Vector3f> translationRB_vec,
-                       std::vector<Eigen::Matrix3f> rotationCB_vec,std::vector<Eigen::Vector3f> translationCB_vec);
-
-
+    void performEstimation(std::vector<Eigen::Matrix4f> tRB_vec, std::vector<Eigen::Matrix4f> tCB_vec);
 
 #endif //PROJECT_PARKMARTIN_H
