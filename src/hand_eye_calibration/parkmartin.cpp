@@ -3,121 +3,135 @@
 //
 
 #include "hand_eye_calibration/parkmartin.h"
-#include "hand_eye_calibration/pose_io.h"
-#include "hand_eye_calibration/chessboard.h"
 #include <Eigen/Eigen>
 #include <iostream>
 #include <vector>
 
 #define ESTIMATION_DEBUG 0
 
+//TODO: Separate so that it is possible to take in vector<Matrix4f> for A and B into a function, this way its easier
+// to benchmark
+
 using namespace std;
 using namespace Eigen;
 
-    Vector3f getLogTheta(Matrix3f R) {
+// AX = XB
 
+    Vector3d logTheta(Matrix3d R) {
         //Assuming that R is never an Identity
-        float theta = acos((R.trace() - 1) / 2);
-        Matrix3f logTheta = 0.5 * theta / sin(theta) * (R - R.transpose());
-        return Vector3f(logTheta(2, 1), logTheta(0, 2), logTheta(1, 0));
-
+        double theta = acos((R.trace() - 1) / 2);
+        double logT = theta / (2*sin(theta));
+        return Vector3d((R(2, 1)- R(1,2))*logT, (R(0, 2) - R(2,0))*logT, (R(1, 0)-R(0,1))*logT);
     }
 
-    Matrix3f invsqrt(Matrix3f M){
+    Matrix3d invsqrt(Matrix3d M){
 
-        Eigen::JacobiSVD<Matrix3f> svd(M,ComputeFullU | ComputeFullV);
-        Eigen::Matrix3f S_d = (1/(svd.singularValues().array().sqrt())).matrix().asDiagonal();
+        Eigen::JacobiSVD<Matrix3d> svd(M,ComputeFullU | ComputeFullV);
+        Eigen::Vector3d S_v;
+        S_v << 1,1,(svd.matrixV() * svd.matrixU().transpose()).determinant();
+        Eigen::Matrix3d S = S_v.matrix().asDiagonal();
 
 #if ESTIMATION_DEBUG
-        cout << "S: " << svd.singularValues() << endl << endl;
         cout << "U: " << svd.matrixU() << endl << endl;
         cout << "V: " << svd.matrixV() << endl << endl;
-        cout << "S_d: " << S_d << endl << endl;
+        cout << "S: " << S << endl << endl;
 #endif
+        if (S(2,2)>= 0.99 && S(2,2) <= 1.01){
+            return (svd.matrixV() * S * svd.matrixU().transpose());
+        }
 
-        return (svd.matrixU() * S_d.transpose()) * svd.matrixV().transpose();
+        else {
+            cout << "S should have 1,1,1 on the diagonal. The computed S is: " << endl << S << endl << endl;
+            cout << "The matrix is passed, but it is possible that R isnt a rotation matrix." << endl << endl;
+            return (svd.matrixV() * S * svd.matrixU().transpose());
+        }
     }
 
+    Matrix3d getR(Matrix3d M) {
 
-    void performEstimation(vector<Eigen::Matrix4f> tRB_vec, vector<Eigen::Matrix4f> tCB_vec) {
-        if (tRB_vec.size() < 3) {
-            std::cout << "Insufficient data" << std::endl;
-            return;
-        }
+        EigenSolver<Matrix3d> es(M.transpose() * M);
+        Matrix3cd D = es.eigenvalues().asDiagonal();
+        Matrix3cd V = es.eigenvectors();
 
-        if (tRB_vec.size() > 3 && tRB_vec.size() < 10) {
-            std::cout << "At least 10 pose pairs are recommended. See the original paper for further explaination"
-                      << std::endl;
-            return;
-        }
+        Matrix3cd Lambda = D.inverse().array().sqrt();
 
-        Matrix3f M;
-        Matrix4f rbi, rbj, cbi, cbj; // transformation matrices, useless conversion ??
-        Matrix4f A, B;
-        MatrixXf C(0, 3), d(0, 1);
-        Vector3f ai, bi; // for storing logtheta, the Rotation matrix logarithm
+#if ESTIMATION_DEBUG
+        cout << "D: " << D << endl << endl;
+        cout << "V: " << V << endl << endl;
+        cout << "Lambda: " << Lambda << endl << endl;
+#endif
+        return (V * Lambda * V.inverse() * M.transpose()).real();
+    }
+
+    Matrix4d performEstimation(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::Matrix4d> tCB_vec) {
+
+        Matrix3d M;
+        Matrix4d rbi, rbj, cbi, cbj; // transformation matrices, useless conversion ??
+        vector<Matrix4d> A, B;
+        Matrix4d X;
+        MatrixXd C(0, 3), d(0, 1);
+        Vector3d ai, bi; // for storing logtheta, the Rotation matrix logarithm
 
         M.setZero();
 
-        for (int i = 0; i < (int) tRB_vec.size(); i++) {
-            for (int j = 0; j < (int) tRB_vec.size(); j++) {
+        for (int i = 0; i < tRB_vec.size(); i++) {
+            for (int j = 0; j < tRB_vec.size(); j++) {
                 if (i != j) { // create pairs??
                     rbi = tRB_vec[i];
                     rbj = tRB_vec[j];
-                    A = rbj.inverse() * rbi;
+                    A.push_back(rbj.inverse() * rbi);
 
                     cbi = tCB_vec[i];
                     cbj = tCB_vec[j];
-                    B = cbj * cbi.inverse();
+                    B.push_back(cbj * cbi.inverse());
 
 #if ESTIMATION_DEBUG
-                    cout << "A: " << A << endl << endl;
-                    cout << "B: " << B << endl << endl;
+                    cout << "A: " << A[i] << endl << endl;
+                    cout << "B: " << B[i] << endl << endl;
 #endif
-
                 }
             }
         }
+
+#if ESTIMATION_DEBUG
         cout << "Size of A: " << A.size() << endl;
+#endif
 
         for (int i = 0; i < A.size(); i++) {
-            ai = getLogTheta(A.block(0, 0, 3, 3)); // block of size (p,q) starting at (i,j) = matrix.block(i,j,p,q)
-            bi = getLogTheta(B.block(0, 0, 3, 3));
+            ai = logTheta(A[i].block(0, 0, 3, 3)); // block of size (p,q) starting at (i,j) = matrix.block(i,j,p,q)
+            bi = logTheta(B[i].block(0, 0, 3, 3));
 
-            M += bi * ai.transpose(); // multiplying the rotation of the pose pairs from camera and robot
-            // THIS IS THE ROTATION PART OF THE CALIB (save the A and B here)
-
-            //cout << "ai: " << ai << endl << endl;
-            //cout << "bi: " << bi << endl << endl;
-
-            //cout << M << endl << endl;
+            M += ai * bi.transpose(); // multiplying the rotation of the pose pairs from camera and robot
         }
 
 #if ESTIMATION_DEBUG
         cout << "M: " << M << endl << endl;
 #endif
-
-        Matrix3f Rx = invsqrt(M.transpose() * M) * M.transpose();
+        Matrix3d Rx = getR(M);//(invsqrt(M * M.transpose())) * M.transpose();
         cout << "\nOrientation of Robot tool-tip frame with respect to end-effector frame." << endl;
         cout << "Rx: " << Rx << endl << endl;
 
         for (int i = 0; i < A.size(); i++) {
 
-            MatrixXf C_tmp = C;
+            MatrixXd C_tmp = C;
             C.resize(C.rows() + 3, NoChange);
-            C << C_tmp, Matrix3f::Identity() - A.block(0, 0, 3, 3);
+            C << C_tmp, A[i].block(0, 0, 3, 3) - Matrix3d::Identity();
 
-            VectorXf d_tmp = d;
+            VectorXd d_tmp = d;
             d.resize(d.rows() + 3, NoChange);
-            d << d_tmp, A.block(0, 3, 3, 1) - (Rx * B.block(0, 3, 3, 1));
+            d << d_tmp, (Rx * B[i].block(0, 3, 3, 1) - A[i].block(0, 3, 3, 1));
         }
 
 #if ESTIMATION_DEBUG
         cout << "C: " << C << endl << endl;
         cout << "d: " << d << endl << endl;
 #endif
-        Vector3f tx = ((C.transpose() * C).inverse()) * (C.transpose() * d);
+        Vector3d tx = ((C.transpose() * C).inverse()) * (C.transpose() * d);
 
         cout << "\nTranslation of Robot tool-tip frame with respect to end-effector frame." << endl;
         cout << "tx: " << tx << endl << endl;
+
+        X << Rx, tx, 0,0,0,1;
+
+        return X;
     }

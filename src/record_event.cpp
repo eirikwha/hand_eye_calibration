@@ -38,7 +38,7 @@ int n_cloud = 0, n_pose = 0;
 //TODO: Maybe run in livemode?
 //TODO: Publish image to view in rviz
 
-void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
+void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
 
     cout << "cloud.fields[4].name: " << cloud.fields[4].name << endl <<
          "cloud.fields[4].offset: " << cloud.fields[4].offset << endl <<
@@ -94,7 +94,7 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 
     // For every recorded point cloud, a pose is recorded. n_pose and n_cloud manages the sequencing of the recording.
     if (n_pose < n_cloud){
-        vector<float> pose;
+        vector<double> pose;
         pose.push_back(robotPose.pose.position.x);
         pose.push_back(robotPose.pose.position.y);
         pose.push_back(robotPose.pose.position.z);

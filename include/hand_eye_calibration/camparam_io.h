@@ -9,7 +9,7 @@ using namespace std;
 
 void readCamParams(const char* filePath, cv::Mat &cameraMatrix, cv::Mat &distCoeffs);//, cv::FileNode features);
 
-void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char* filePath, int frameCount);
+void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char* filePath);
 
 int listImages(const char* directoryPath, const char* fileType, vector<string> &list);
 

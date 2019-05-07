@@ -9,12 +9,22 @@
 
 using namespace std;
 
-int numImages = 20; // set this value for desired number of input images (better to parse or pass as argument in main)
 constexpr int numCornersHor = 9;
 constexpr int numCornersVer = 7;
-constexpr int numSquares = numCornersHor * numCornersVer;
+constexpr float square_size = 10; //mm
+
 cv::Size board_sz = cv::Size(numCornersHor, numCornersVer);
 
+const vector<cv::Point3f> genPatternPoints() {
+    vector<cv::Point3f> obj;
+    for (int i = 0; i < board_sz.height; i++) {
+        for (int j = 0; j < board_sz.width; j++) {
+            obj.push_back(cv::Point3f((float) j * square_size, (float) i * square_size,0.0f));
+        }
+    }
+
+    return obj;
+}
 
 cv::Mat readColorImage(string filename){
     cv::Mat image;
@@ -55,8 +65,7 @@ void drawCorners(cv::Mat image, vector<cv::Point2f> corners) {
         cv::cvtColor(image, image, CV_GRAY2BGR);
     }
 
-    if (!image.data) // Check for invalid image data
-    {
+    if (!image.data){ // Check for invalid image data
         cout << "Image has no data" << std::endl;
     }
 
@@ -66,33 +75,38 @@ void drawCorners(cv::Mat image, vector<cv::Point2f> corners) {
 void saveCorners(vector<vector<cv::Point2f>> &pointsImage, vector<vector<cv::Point3f>> &points3d,
                     vector<cv::Point3f> obj, vector<cv::Point2f> corners) {
 
-    for (int j = 0; j < numSquares; j++) {
-        obj.push_back(cv::Point3f(j / numCornersHor, j % numCornersHor, 0.0f));
-    }
-/*
-    cout << "Store result for calibration? (y/n): ";
-    string n;
-    cin >> n;
-    if (n == "y" || n == "yes") {*/
     pointsImage.push_back(corners);
     points3d.push_back(obj);
 
-    printf("Corners stored.\n");
-    /*} else {
-        printf("Corners rejected.\n");
-        return;
-    }*/
+}
+
+
+tuple<cv::Mat, cv::Mat, vector<cv::Mat>, vector<cv::Mat>> calibrateLens(vector<vector<cv::Point2f>> &pointsImage,
+                                                                        vector<vector<cv::Point3f>> &points3d, cv::Mat &image){
+
+    cv::Mat intrinsic = cv::Mat(3, 3, CV_32FC1);
+    cv::Mat distCoeffs;
+    vector<cv::Mat> rvecs;
+    vector<cv::Mat> tvecs;
+
+    calibrateCamera(points3d, pointsImage, image.size(), intrinsic, distCoeffs, rvecs, tvecs);
+
+    return make_tuple(intrinsic, distCoeffs,rvecs,tvecs);
 }
 
 tuple<cv::Mat, cv::Mat> getObjectPosePnP(vector<cv::Point2f> &pointsImage, vector<cv::Point3f> &points3d,
-                             cv::Mat &cameraMatrix, cv::Mat &distCoeffs){
+                             cv::Mat &cameraMatrix, cv::Mat &distCoeffs, bool ransac){
 
     cv::Mat rvec;
     cv::Mat tvec;
 
-
     try {
-        cv::solvePnP(points3d, pointsImage, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);
+        if (ransac) {
+            cv::solvePnPRansac(points3d, pointsImage, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);
+        }
+        else{
+            cv::solvePnP(points3d, pointsImage, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);
+        }
         return make_tuple(rvec,tvec);
     }
     catch(cv::Exception& e) {
@@ -101,31 +115,33 @@ tuple<cv::Mat, cv::Mat> getObjectPosePnP(vector<cv::Point2f> &pointsImage, vecto
     }
 }
 
-
-tuple<cv::Mat, cv::Mat, vector<cv::Mat>, vector<cv::Mat>> calibrateLens(vector<vector<cv::Point2f>> &pointsImage,
-                                                            vector<vector<cv::Point3f>> &points3d, cv::Mat &image){
-
-    cv::Mat intrinsic = cv::Mat(3, 3, CV_32FC1);
-    cv::Mat distCoeffs;
-    vector<cv::Mat> rvecs;
-    vector<cv::Mat> tvecs;
-
-    //intrinsic.ptr<float>(0)[0] = 1; // focal length x
-    //intrinsic.ptr<float>(1)[1] = 1; // focal length y
-
-    calibrateCamera(points3d, pointsImage, image.size(), intrinsic, distCoeffs, rvecs, tvecs);
-
-    return make_tuple(intrinsic, distCoeffs,rvecs,tvecs);
-}
-
-
 cv::Mat undistortImage(cv::Mat image, cv::Mat intrinsic, cv::Mat distCoeffs){
     cv::Mat imageUndistorted;
-
     undistort(image, imageUndistorted, intrinsic, distCoeffs);
-
-    //imshow("win1", image);
-    //imshow("win2", imageUndistorted);
-    //cv::waitKey(1);
     return imageUndistorted;
 }
+
+void drawVector_withProjectPointsMethod(float x, float y, float z, float r, float g, float b, cv::Mat &rvec, cv::Mat &tvec, cv::Mat &cameraMatrix, cv::Mat &distCoeffs, cv::Mat &dst) {
+    std::vector<cv::Point3f> points;
+    std::vector<cv::Point2f> projectedPoints;
+
+    //fills input array with 2 points
+    points.push_back(cv::Point3f(0, 0, 0));
+    points.push_back(cv::Point3f(x, y, z));
+
+
+    //projects points using cv::projectPoints method
+    cv::projectPoints(points, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+
+    //draws corresponding line
+    cv::line(dst, projectedPoints[0], projectedPoints[1],
+             CV_RGB(255 * r, 255 * g, 255 * b),5);
+}
+
+void drawAxis(cv::Mat &rvec, cv::Mat &tvec, cv::Mat &cameraMatrix, cv::Mat &distCoeffs, cv::Mat &dst) {
+
+    drawVector_withProjectPointsMethod(100, 0, 0, 1, 0, 0, rvec, tvec, cameraMatrix, distCoeffs , dst);
+    drawVector_withProjectPointsMethod(0, 100, 0, 0, 1, 0, rvec, tvec, cameraMatrix, distCoeffs, dst);
+    drawVector_withProjectPointsMethod(0, 0, 100, 0, 0, 1, rvec, tvec, cameraMatrix, distCoeffs, dst);
+}
+

@@ -13,30 +13,25 @@ using namespace std;
 
 void readCamParams(const char* filePath, cv::Mat &cameraMatrix, cv::Mat &distCoeffs){//, cv::FileNode features) {
 
-    FileStorage fs2(filePath, FileStorage::READ);
+    FileStorage fs(filePath, FileStorage::READ);
 
-// first method: use (type) operator on FileNode.
-//    int frameCount = (int) fs2["frameCount"];
     String date;
 
-// second method: use FileNode::operator >>
-    fs2["calibrationDate"] >> date;
-    fs2["cameraMatrix"] >> cameraMatrix;
-    fs2["distCoeffs"] >> distCoeffs;
+    fs["calibrationDate"] >> date;
+    fs["cameraMatrix"] >> cameraMatrix;
+    fs["distCoeffs"] >> distCoeffs;
     cout << "Loaded calibration data" << endl << "------------------------" << endl
-//        << "frameCount: " << frameCount << endl
         << "calibration date: " << date
         << "camera matrix: \n" << cameraMatrix << endl
         << "distortion coeffs: \n" << distCoeffs << endl
         << "------------------------" << endl;
 
-    fs2.release();
+    fs.release();
 }
 
-void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char* filePath, int frameCount)
+void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char* filePath)
 {
     FileStorage fs(filePath, FileStorage::WRITE);
-    fs << "frameCount" << frameCount;
     time_t rawtime; time(&rawtime);
     fs << "calibrationDate" << asctime(localtime(&rawtime));
     fs << "cameraMatrix" << cameraMatrix << "distCoeffs" << distCoeffs;

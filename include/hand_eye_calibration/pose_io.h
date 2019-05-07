@@ -11,7 +11,7 @@
 
 void writePose(geometry_msgs::PoseStamped &robotPose, std::string folderPath, int i, bool isEigen4x4);
 
-std::vector<float> readSinglePose(std::string fileName);
+std::vector<double> readPose(std::string fileName);
 
 int listPoses(const char* directoryPath, const char* fileType, std::vector<std::string> &list);
 
@@ -19,10 +19,10 @@ void writePoseList(const char* filePath, const char* outputName, const char *fil
 
 void readPoseList(const char* filePath,  std::vector <std::string> &poses);
 
-geometry_msgs::PoseStamped vectorToPose(std::vector<float> &poseVec);
+geometry_msgs::PoseStamped vectorToPose(std::vector<double> &poseVec);
 
-void convertTo4x4(geometry_msgs::PoseStamped &pose, Eigen::Matrix4f &t);
+void convertTo4x4(std::vector<double> &poseVec, Eigen::Matrix4d &t);
 
-void readRobotTransformation(std::vector<Eigen::Matrix3f> &rotationRB_vec, std::vector<Eigen::Vector3f> &translationRB_vec);
+void writeTransformation(Eigen::Matrix4d T, const char* filePath);
 
 #endif //PROJECT_POSE_IO_H
