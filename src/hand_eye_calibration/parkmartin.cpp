@@ -85,6 +85,10 @@ using namespace Eigen;
                     cbj = tCB_vec[j];
                     B.push_back(cbj * cbi.inverse());
 
+                    if (A.size() == 10){
+                        break;
+                    }
+
 #if ESTIMATION_DEBUG
                     cout << "A: " << A[i] << endl << endl;
                     cout << "B: " << B[i] << endl << endl;

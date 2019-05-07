@@ -110,9 +110,9 @@ int main(){
         cv::Mat r;
         cv::Rodrigues(get<0>(pnp), r);
         Eigen::Matrix3d rMat;
-        cv::cv2eigen(r, rMat);
+        cv::cv2eigen(r, rMat); // TODO: CHECK!!!
 
-        rvecs.push_back(rMat.transpose());
+        rvecs.push_back(rMat);
 
         cv::Mat img = readColorImage(imagelist[i]);
         drawAxis(get<0>(pnp),get<1>(pnp),camMat1,distCoeffs1,img);
@@ -155,6 +155,7 @@ int main(){
 #endif
 
         Eigen::Matrix4d t2;
+
         t2.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
         t2.block(0,0,3,3) = rvecs[i];
         t2.block(0,3,3,1) = tvecs[i];
@@ -192,7 +193,9 @@ int main(){
 
     // COMPUTE ACTUAL TRANSFORMATION
     for (int i = 0; i < pointsImage.size(); i++){
+
         T.push_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
+        //cout << T[i] << endl << endl;
 
 #if CALIBRATION_DEBUG
         cout << T[i] << endl << endl;
