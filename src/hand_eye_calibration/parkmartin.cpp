@@ -85,7 +85,7 @@ using namespace Eigen;
                     cbj = tCB_vec[j];
                     B.push_back(cbj * cbi.inverse());
 
-                    if (A.size() == 10){
+                    if (A.size() == 20){
                         break;
                     }
 
@@ -111,7 +111,7 @@ using namespace Eigen;
 #if ESTIMATION_DEBUG
         cout << "M: " << M << endl << endl;
 #endif
-        Matrix3d Rx = getR(M);//(invsqrt(M * M.transpose())) * M.transpose();
+        Matrix3d Rx = invsqrt(M.transpose());
         cout << "\nOrientation of Robot tool-tip frame with respect to end-effector frame." << endl;
         cout << "Rx: " << Rx << endl << endl;
 
@@ -132,10 +132,11 @@ using namespace Eigen;
 #endif
         Vector3d tx = ((C.transpose() * C).inverse()) * (C.transpose() * d);
 
-        cout << "\nTranslation of Robot tool-tip frame with respect to end-effector frame." << endl;
+        cout << "\nTranslation of Robot tool-tip frame with respect to end-effector frame." << endl; // TODO: WHAT IS THIS???
         cout << "tx: " << tx << endl << endl;
 
         X << Rx, tx, 0,0,0,1;
 
         return X;
+
     }

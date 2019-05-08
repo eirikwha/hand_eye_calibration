@@ -197,6 +197,8 @@ int main(){
         T.push_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
         //cout << T[i] << endl << endl;
 
+        // TODO: Visualize pose of gripper
+
 #if CALIBRATION_DEBUG
         cout << T[i] << endl << endl;
 #endif
