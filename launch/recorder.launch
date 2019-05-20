@@ -10,7 +10,6 @@
 	type="zivid_ros_wrapper_service_republisher_node" output="screen"/>
 	
 	<!-- Recorder node -->
-	
 	<node name="recorder" pkg="hand_eye_calibration" 		
 	type="recorder" args="/pointcloud_republish /robot_state /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/img /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/pose"/>
 

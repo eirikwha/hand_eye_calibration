@@ -21,6 +21,8 @@ int main(){
     // MAKE LIST OF CALIBRATION IMAGES
     vector<vector<cv::Point2f>> pointsImage;
     vector<vector<cv::Point3f>> points3d;
+
+
     vector<cv::Point3f> obj = genPatternPoints();
     vector<int> invalids;
 
@@ -112,6 +114,8 @@ int main(){
         Eigen::Matrix3d rMat;
         cv::cv2eigen(r, rMat); // TODO: CHECK!!!
 
+        // TODO: Keypress to reject poses as well!!
+
         rvecs.push_back(rMat);
 
         cv::Mat img = readColorImage(imagelist[i]);
@@ -182,7 +186,8 @@ int main(){
                  << endl;
         }
 
-        X = performEstimation(tRB_vec,tCB_vec);
+        PosePair AB = createPosePairs(tRB_vec,tCB_vec);
+        X = performEstimation(AB);
         cout << "X:\n" << X << endl << endl;
     }
 
@@ -220,5 +225,6 @@ int main(){
     cout << "Final transformation: \n" << T_mat << endl;
 
     const char* filePath2 = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/extrinsics.yml";
-    writeTransformation(T_mat, filePath2);
+    writeTransformation(X, filePath2);
+
 }

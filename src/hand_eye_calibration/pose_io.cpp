@@ -116,11 +116,8 @@ void convertTo4x4(vector<double> &poseVec, Eigen::Matrix4d &t)
 
 void writeTransformation(Eigen::Matrix4d T, const char* filePath){
 
-    vector<double> Tv;
-    for (int i = 0; i < T.size(); i++){
-        Tv.push_back(T(i));
-
-    }
+    cv::Mat Tv;
+    eigen2cv(T, Tv);
     FileStorage fs(filePath, FileStorage::WRITE);
     time_t rawtime; time(&rawtime);
     fs << "calibrationDate" << asctime(localtime(&rawtime));

@@ -7,19 +7,15 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <opencv2/core/core.hpp>
 
-#include <pcl/console/print.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/conversions.h>
-#include <pcl/console/time.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 
 #include "cv_bridge/cv_bridge.h"
 #include <opencv2/opencv.hpp>
 
-
-using namespace pcl::console;
 using namespace pcl;
 using namespace pcl::io;
 
@@ -27,16 +23,15 @@ using namespace std;
 using namespace cv;
 
 vector<geometry_msgs::PoseStamped> poseList;
-string pointCloudPath;
-string posePath;
+string calibrationPath;
 int height = 1200;
 int width = 1920;
 int n_cloud = 0, n_pose = 0;
 
-//TODO: MAKE IT WORK FOR OTHER POINTCLOUDS AS WELL
-//TODO: Add a function that runs matching (findcorrners or some 6d pose est, and only saves if matches are found)
-//TODO: Maybe run in livemode?
-//TODO: Publish image to view in rviz
+// TODO: MAKE IT WORK FOR OTHER POINTCLOUDS AS WELL
+// TODO: Add a function that runs matching (findcorners or some 6d pose est, and only saves if matches are found)
+// TODO: Maybe run in livemode?
+// TODO: Publish image to view in rviz
 
 void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
 
@@ -84,9 +79,17 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check 
 
     }
     stringstream sstream;
-    sstream << pointCloudPath << string("/") << string("img") << setw(2) << setfill('0') << n_cloud << ".png"; // possible error with "/
+    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cloud << ".png"; // possible error with "/
     cv::imwrite(sstream.str(),color);
     cout << sstream.str() << endl;
+
+    // TODO: Make it possible to save pointclouds as well, as pointcloud2 or ply. For matching with PPF
+
+    /// Show your results
+    namedWindow( "Image", CV_WINDOW_AUTOSIZE );
+    imshow( "Image", color);
+    waitKey(0);
+
     ++n_cloud;
 }
 
@@ -105,7 +108,7 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 
         ostringstream oss;
         oss << setw(2) << std::setfill('0') << n_pose;
-        std::string filename = posePath + string("/") + string("pose") + oss.str() + string(".yml");
+        std::string filename = calibrationPath + string("pose/") + string("pose") + oss.str() + string(".yml");
 
         FileStorage fs(filename, FileStorage::WRITE);
         fs << "pose" << pose;
@@ -115,14 +118,14 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 }
 
 void printHelp(int, char **argv) {
-    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /image/path/ /pose/path/ \n" << endl;
+    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ \n" << endl;
 }
 
 /* ---[ */
 int
 main (int argc, char** argv)
 {
-    cout << "Record a set of calib1_pose and pointclouds." << endl;
+    ROS_INFO_STREAM("Record a set of calib1_pose and pointclouds.");
 
     if (argc < 4)
     {
@@ -132,21 +135,20 @@ main (int argc, char** argv)
 
     const char* pointCloudTopic = argv[1];
     const char* poseTopic = argv[2];
-    pointCloudPath = argv[3];
-    posePath = argv[4];
+    calibrationPath = argv[3];
 
     ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << " and calib1_pose at: " << poseTopic << endl);
-
     ROS_INFO_STREAM("Wait 20 seconds for the camera to boot up..." << endl);
-    //ros::time(20).sleep();
 
-    // Initialize ROS
+    /// Initialize ROS
     ros::init(argc, argv, "PoseRecorder");
     ros::NodeHandle nh;
-    // Create a ROS subscriber for the input point cloud
+
+    /// Create a ROS subscriber for the input point cloud
     ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
 
-    // Create a ROS subscriber for the input pose
+    /// Create a ROS subscriber for the input pose
     ros::Subscriber sub2 = nh.subscribe(poseTopic,1,poseCallback);
+
     ros::spin();
 }

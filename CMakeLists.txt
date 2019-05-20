@@ -77,7 +77,7 @@ add_library(${PROJECT_NAME}
 ## Declare cpp executables
 add_executable(
         ${PROJECT_NAME}_test
-        src/reference_test.cpp
+        src/reference_test2.cpp
 )
 
 add_executable(

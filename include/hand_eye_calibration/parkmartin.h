@@ -10,12 +10,19 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
-    Eigen::Vector3d logTheta(Eigen::Matrix3d R);
+struct PosePair{
+    std::vector<Eigen::Matrix4d> A;
+    std::vector<Eigen::Matrix4d> B;
+};
 
-    Eigen::Matrix3d invsqrt(Eigen::Matrix3d M);
+Eigen::Vector3d logTheta(Eigen::Matrix3d R);
 
-    Eigen::Matrix3d getR(Eigen::Matrix3d M);
+Eigen::Matrix3d invsqrt(Eigen::Matrix3d M);
 
-    Eigen::Matrix4d performEstimation(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec);
+Eigen::Matrix3d getR(Eigen::Matrix3d M);
+
+PosePair createPosePairs(std::vector<Eigen::Matrix4d> tRB, std::vector<Eigen::Matrix4d> tCB);
+
+Eigen::Matrix4d performEstimation(PosePair AB);
 
 #endif //PROJECT_PARKMARTIN_H
