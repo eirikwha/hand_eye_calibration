@@ -1,8 +1,0 @@
-%YAML:1.0
----
-images:
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_img/img00.png"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_img/img01.png"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_img/img02.png"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_img/img03.png"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_img/img04.png"

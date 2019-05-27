@@ -77,7 +77,7 @@ add_library(${PROJECT_NAME}
 ## Declare cpp executables
 add_executable(
         ${PROJECT_NAME}_test
-        src/reference_test2.cpp
+        src/reference_test.cpp
 )
 
 add_executable(
@@ -99,17 +99,17 @@ target_link_libraries(
 )
 
 target_link_libraries(
-        ${PROJECT_NAME}_calibrate
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBRARIES}
+    ${PROJECT_NAME}_calibrate
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(
-        recorder
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBRARIES}
+    recorder
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
 )
 
 

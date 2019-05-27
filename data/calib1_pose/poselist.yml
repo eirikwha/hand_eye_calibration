@@ -1,7 +1,0 @@
-%YAML:1.0
----
-calib1_pose:
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_pose/pose00.yml"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_pose/pose01.yml"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_pose/pose02.yml"
-   - "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib1_pose/poselist.yml"
