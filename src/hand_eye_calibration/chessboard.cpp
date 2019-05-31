@@ -117,7 +117,7 @@ tuple<cv::Mat, cv::Mat> getObjectPosePnP(vector<cv::Point2f> &pointsImage, vecto
 
 cv::Mat undistortImage(cv::Mat image, cv::Mat intrinsic, cv::Mat distCoeffs){
     cv::Mat imageUndistorted;
-    undistort(image, imageUndistorted, intrinsic, distCoeffs);
+    cv::undistort(image, imageUndistorted, intrinsic, distCoeffs);
     return imageUndistorted;
 }
 

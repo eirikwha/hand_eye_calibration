@@ -2,7 +2,7 @@
 // Created by eirik on 18.05.19.
 //
 
-#include "hand_eye_calibration/parkmartin.h"
+#include <hand_eye_calibration/park_martin_class.h>
 #include <Eigen/Eigen>
 #include <iostream>
 #include <vector>
@@ -56,7 +56,7 @@ int main() {
     AB.A = A;
     AB.B = B;
 
-    X = performEstimation(AB);
+    X = ParkMartin(AB).getX();
 
     cout << "X:\n" << X << endl;
 

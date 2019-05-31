@@ -9,20 +9,23 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <Eigen/Geometry>
 
-void writePose(geometry_msgs::PoseStamped &robotPose, std::string folderPath, int i, bool isEigen4x4);
+namespace RobotPoseIO {
 
-std::vector<double> readPose(std::string fileName);
+    void writePose(geometry_msgs::PoseStamped &robotPose, std::string folderPath, int i, bool isEigen4x4);
 
-int listPoses(const char* directoryPath, const char* fileType, std::vector<std::string> &list);
+    std::vector<double> readPose(std::string fileName);
 
-void writePoseList(const char* filePath, const char* outputName, const char *fileType);
+    int listPoses(const char *directoryPath, const char *fileType, std::vector<std::string> &list);
 
-void readPoseList(const char* filePath,  std::vector <std::string> &poses);
+    void writePoseList(const char *filePath, const char *outputName, const char *fileType);
 
-geometry_msgs::PoseStamped vectorToPose(std::vector<double> &poseVec);
+    void readPoseList(const char *filePath, std::vector<std::string> &poses);
 
-void convertTo4x4(std::vector<double> &poseVec, Eigen::Matrix4d &t);
+    geometry_msgs::PoseStamped vectorToPose(std::vector<double> &poseVec);
 
-void writeTransformation(Eigen::Matrix4d T, const char* filePath);
+    void convertTo4x4(std::vector<double> &poseVec, Eigen::Matrix4d &t);
+
+    void writeTransformation(Eigen::Matrix4d T, const char *filePath);
+}
 
 #endif //PROJECT_POSE_IO_H

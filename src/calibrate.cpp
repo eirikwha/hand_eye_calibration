@@ -27,14 +27,14 @@ int main(){
     vector<int> invalids;
 
     vector<string> imagelist;
-    listImages("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/img/","png", imagelist);
-
+    CamParamIO::listImages("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/img/","png", imagelist);
 
     // DETECT CORNERS AND ERASE INVALID IMAGES
     cout << "Size of imagelist: " << imagelist.size() << endl << endl;
 
     for (int i = 0; i<imagelist.size();i++){
         cv::Mat image = readColorImage(imagelist[i]);
+
 #if DEBUG_IMAGES
         cv::namedWindow("Display window", CV_WINDOW_AUTOSIZE);
         cv::imshow("Display window", image);
@@ -68,7 +68,6 @@ int main(){
             invalids.push_back(i);
         }
     }
-
     cout << "Number of images with detected corners: " << pointsImage.size() << endl << endl;
 
     // CALIBRATION OF LENS
@@ -76,11 +75,10 @@ int main(){
     tuple<cv::Mat, cv::Mat, vector<cv::Mat>, vector<cv::Mat>> calib = calibrateLens(pointsImage,points3d,image);
 
     const char* filePath1 = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/intrinsics.yml";
-    writeCamParams(get<0>(calib),get<1>(calib),filePath1);
+    CamParamIO::writeCamParams(get<0>(calib),get<1>(calib),filePath1);
 
     cv::Mat camMat1, distCoeffs1;
-    readCamParams(filePath1,camMat1,distCoeffs1);
-
+    CamParamIO::readCamParams(filePath1,camMat1,distCoeffs1);
 
     // VERIFY CALIBRATON BY UNDISTORTING IMAGE
     cv::namedWindow("Before undistortion",CV_WINDOW_NORMAL);
@@ -134,7 +132,7 @@ int main(){
 
     // READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
     vector<string> poselist;
-    listPoses("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/pose/","yml",poselist);
+    RobotPoseIO::listPoses("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/pose/","yml",poselist);
 
     for(int i =0; i<invalids.size(); i++){
         poselist.erase(poselist.begin()+ invalids[i]);
@@ -147,9 +145,9 @@ int main(){
     vector<Eigen::Matrix4d> tCB_vec;
 
     for (int i = 0; i<poselist.size();i++) {
-        vector<double> poseVec = readPose(poselist[i]);
+        vector<double> poseVec = RobotPoseIO::readPose(poselist[i]);
         Eigen::Matrix4d t1;
-        convertTo4x4(poseVec,t1);
+        RobotPoseIO::convertTo4x4(poseVec,t1);
         t1.block(0,3,3,1) = t1.block(0,3,3,1) * 1000;
         tRB_vec.push_back(t1);
 
@@ -186,8 +184,8 @@ int main(){
                  << endl;
         }
 
-        PosePair AB = createPosePairs(tRB_vec,tCB_vec);
-        X = performEstimation(AB);
+        PosePair AB = HandEye::createPosePairs(tRB_vec,tCB_vec);
+        X = HandEye::performEstimation(AB);
         cout << "X:\n" << X << endl << endl;
     }
 
@@ -225,6 +223,6 @@ int main(){
     cout << "Final transformation: \n" << T_mat << endl;
 
     const char* filePath2 = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/extrinsics.yml";
-    writeTransformation(X, filePath2);
+    RobotPoseIO::writeTransformation(X, filePath2);
 
 }

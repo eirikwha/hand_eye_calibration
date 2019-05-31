@@ -7,14 +7,17 @@
 
 using namespace std;
 
-void readCamParams(const char* filePath, cv::Mat &cameraMatrix, cv::Mat &distCoeffs);//, cv::FileNode features);
+namespace CamParamIO {
 
-void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char* filePath);
+    void readCamParams(const char *filePath, cv::Mat &cameraMatrix, cv::Mat &distCoeffs);//, cv::FileNode features);
 
-int listImages(const char* directoryPath, const char* fileType, vector<string> &list);
+    void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char *filePath);
 
-void writeImageList(const char* filePath, const char* outputName, const char *fileType);
+    int listImages(const char *directoryPath, const char *fileType, vector<string> &list);
 
-void readImageList(const char* filePath,  vector <string> &images);
+    void writeImageList(const char *filePath, const char *outputName, const char *fileType);
+
+    void readImageList(const char *filePath, vector<string> &images);
+}
 
 #endif //PROJECT_CAMPARAM_IO_H

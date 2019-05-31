@@ -15,14 +15,17 @@ struct PosePair{
     std::vector<Eigen::Matrix4d> B;
 };
 
-Eigen::Vector3d logTheta(Eigen::Matrix3d R);
+namespace HandEye {
 
-Eigen::Matrix3d invsqrt(Eigen::Matrix3d M);
+    Eigen::Vector3d logTheta(Eigen::Matrix3d R);
 
-Eigen::Matrix3d getR(Eigen::Matrix3d M);
+    Eigen::Matrix3d invsqrt(Eigen::Matrix3d M);
 
-PosePair createPosePairs(std::vector<Eigen::Matrix4d> tRB, std::vector<Eigen::Matrix4d> tCB);
+    Eigen::Matrix3d getR(Eigen::Matrix3d M);
 
-Eigen::Matrix4d performEstimation(PosePair AB);
+    PosePair createPosePairs(std::vector<Eigen::Matrix4d> tRB, std::vector<Eigen::Matrix4d> tCB);
+
+    Eigen::Matrix4d performEstimation(PosePair AB);
+}
 
 #endif //PROJECT_PARKMARTIN_H

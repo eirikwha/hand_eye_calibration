@@ -26,12 +26,41 @@ vector<geometry_msgs::PoseStamped> poseList;
 string calibrationPath;
 int height = 1200;
 int width = 1920;
-int n_cloud = 0, n_pose = 0;
+int n_cam = 0, n_pose = 0;
 
 // TODO: MAKE IT WORK FOR OTHER POINTCLOUDS AS WELL
 // TODO: Add a function that runs matching (findcorners or some 6d pose est, and only saves if matches are found)
 // TODO: Maybe run in livemode?
 // TODO: Publish image to view in rviz
+
+void imageCallback(const sensor_msgs::Image &img) { /// For regular cameras
+
+    cv::Mat color;
+    cv_bridge::CvImagePtr cv_ptr;
+
+    try
+    {
+        cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+        color =  cv_ptr->image;
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        ROS_ERROR("cv_bridge exception: %s", e.what());
+        return;
+    }
+
+    stringstream sstream;
+    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cam << ".png"; // possible error with "/
+    cv::imwrite(sstream.str(),color);
+    cout << sstream.str() << endl;
+
+    /// Show your results
+    namedWindow( "Image", CV_WINDOW_AUTOSIZE );
+    imshow( "Image", color);
+    waitKey(0);
+
+    ++n_cam;
+}
 
 void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
 
@@ -79,7 +108,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check 
 
     }
     stringstream sstream;
-    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cloud << ".png"; // possible error with "/
+    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cam << ".png"; // possible error with "/
     cv::imwrite(sstream.str(),color);
     cout << sstream.str() << endl;
 
@@ -90,13 +119,13 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check 
     imshow( "Image", color);
     waitKey(0);
 
-    ++n_cloud;
+    ++n_cam;
 }
 
 void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 
     // For every recorded point cloud, a pose is recorded. n_pose and n_cloud manages the sequencing of the recording.
-    if (n_pose < n_cloud){
+    if (n_pose < n_cam){
         vector<double> pose;
         pose.push_back(robotPose.pose.position.x);
         pose.push_back(robotPose.pose.position.y);
@@ -118,37 +147,55 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 }
 
 void printHelp(int, char **argv) {
-    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ \n" << endl;
+    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ {img | pointcloud} \n" << endl;
 }
 
-/* ---[ */
-int
-main (int argc, char** argv)
-{
+
+int main (int argc, char** argv) {
+
     ROS_INFO_STREAM("Record a set of calib1_pose and pointclouds.");
 
-    if (argc < 4)
+    if (argc < 5)
     {
         printHelp (argc, argv);
         return (-1);
     }
 
-    const char* pointCloudTopic = argv[1];
+    const char* imageTopic;
+    const char* pointCloudTopic;
+
+    if(argv[4] == "img"){
+        imageTopic = argv[1];
+        ROS_INFO_STREAM("Listening for images at: " << imageTopic << endl);
+    }
+    else if (argv[4] == "pc"){
+        pointCloudTopic = argv[1];
+        ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << endl);
+    }
+    else{
+        printHelp(argc, argv);
+        return (-1);
+    }
+
     const char* poseTopic = argv[2];
     calibrationPath = argv[3];
 
-    ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << " and calib1_pose at: " << poseTopic << endl);
+    ROS_INFO_STREAM("Listening for and calib1_pose at: " << poseTopic << endl);
     ROS_INFO_STREAM("Wait 20 seconds for the camera to boot up..." << endl);
 
     /// Initialize ROS
     ros::init(argc, argv, "PoseRecorder");
     ros::NodeHandle nh;
 
-    /// Create a ROS subscriber for the input point cloud
-    ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
+    /// Create a ROS subscriber for the input image or pointcloud
+    if(argv[4] == "img"){
+        ros::Subscriber sub = nh.subscribe(imageTopic, 1, imageCallback);
+    }
+    else{
+        ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
+    }
 
     /// Create a ROS subscriber for the input pose
     ros::Subscriber sub2 = nh.subscribe(poseTopic,1,poseCallback);
-
     ros::spin();
 }
