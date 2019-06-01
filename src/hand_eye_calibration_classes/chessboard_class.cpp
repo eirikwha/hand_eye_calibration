@@ -2,7 +2,7 @@
 // Created by eirik on 28.05.19.
 //
 
-#include <hand_eye_calibration/chessboard_class.h>
+#include <hand_eye_calibration_classes/chessboard_class.h>
 
 using namespace std;
 

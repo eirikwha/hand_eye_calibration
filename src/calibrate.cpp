@@ -18,18 +18,28 @@
 // TODO: Agrs with filepath of poses and images
 int main(){
 
-    // MAKE LIST OF CALIBRATION IMAGES
+    const char* intrinsicPath = "/home/eirik/catkin_ws/src/"
+                                "hand_eye_calibration/data/calib080419/intrinsics.yml";
+
+    const char* imgPath = "/home/eirik/catkin_ws/src/"
+                          "hand_eye_calibration/data/calib080419/img/";
+
+    const char* robotPosePath = "/home/eirik/catkin_ws/src/"
+                                "hand_eye_calibration/data/calib080419/pose/";
+
+    const char* extCalibPath = "/home/eirik/catkin_ws/src/"
+                               "hand_eye_calibration/data/calib080419/extrinsics.yml";
+
     vector<vector<cv::Point2f>> pointsImage;
     vector<vector<cv::Point3f>> points3d;
-
-
     vector<cv::Point3f> obj = genPatternPoints();
-    vector<int> invalids;
+    vector<int> invalidImgs, invalidPoses;
 
+    /// MAKE LIST OF CALIBRATION IMAGES
     vector<string> imagelist;
-    CamParamIO::listImages("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/img/","png", imagelist);
+    CamParamIO::listFiles(imgPath,"png", imagelist);
 
-    // DETECT CORNERS AND ERASE INVALID IMAGES
+    /// DETECT CORNERS AND ERASE INVALID IMAGES
     cout << "Size of imagelist: " << imagelist.size() << endl << endl;
 
     for (int i = 0; i<imagelist.size();i++){
@@ -65,22 +75,22 @@ int main(){
 #if CALIBRATION_DEBUG
             cout << "No corners found in image." << endl;
 #endif
-            invalids.push_back(i);
+            invalidImgs.emplace_back(i);
         }
     }
     cout << "Number of images with detected corners: " << pointsImage.size() << endl << endl;
 
-    // CALIBRATION OF LENS
+    /// CALIBRATION OF LENS
     cv::Mat image = readColorImage(imagelist[1]); // image only to get correct image size
-    tuple<cv::Mat, cv::Mat, vector<cv::Mat>, vector<cv::Mat>> calib = calibrateLens(pointsImage,points3d,image);
+    tuple<cv::Mat, cv::Mat, vector<cv::Mat>, vector<cv::Mat>> calib;
+    calib = calibrateLens(pointsImage,points3d,image);
 
-    const char* filePath1 = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/intrinsics.yml";
-    CamParamIO::writeCamParams(get<0>(calib),get<1>(calib),filePath1);
+    CamParamIO::writeCamParams(get<0>(calib),get<1>(calib),intrinsicPath);
 
-    cv::Mat camMat1, distCoeffs1;
-    CamParamIO::readCamParams(filePath1,camMat1,distCoeffs1);
+    cv::Mat cameraMatrix, distCoeffs;
+    CamParamIO::readCamParams(intrinsicPath,cameraMatrix,distCoeffs);
 
-    // VERIFY CALIBRATON BY UNDISTORTING IMAGE
+    /// VERIFY CALIBRATON BY UNDISTORTING IMAGE
     cv::namedWindow("Before undistortion",CV_WINDOW_NORMAL);
     cv::resizeWindow("Before undistortion", 1080,720);
     cv::imshow("Before undistortion", readColorImage(imagelist[1]));
@@ -88,21 +98,26 @@ int main(){
 
     cv::namedWindow("After undistortion", CV_WINDOW_NORMAL);
     cv::resizeWindow("After undistortion", 1080,720);
-    cv::imshow("After undistortion", undistortImage(readColorImage(imagelist[1]),camMat1,distCoeffs1));
+    cv::imshow("After undistortion", undistortImage(readColorImage(imagelist[1]),
+            cameraMatrix,distCoeffs));
     cv::waitKey(0);
 
     cv::destroyAllWindows();
 
-    // POSE ESTIMATION OF CHECKERBOARD
+    /// POSE ESTIMATION OF CHECKERBOARD
     vector<Eigen::Vector3d> tvecs;
     vector<Eigen::Matrix3d> rvecs;
 
-    for(int i =0; i<invalids.size(); i++){
-        imagelist.erase(imagelist.begin()+ invalids[i]);
+    for(int i =0; i<invalidImgs.size(); i++){
+        imagelist.erase(imagelist.begin()+ invalidImgs[i]);
     }
 
-    for (int i = 0; i<pointsImage.size();i++) {
-        tuple<cv::Mat, cv::Mat> pnp = getObjectPosePnP(pointsImage[i], points3d[i], camMat1, distCoeffs1, true);
+    cout << "Delete image poses by pressing d, accept by pressing ENTER button." << endl;
+
+    for (int i = 0; i<pointsImage.size(); i++) {
+        tuple<cv::Mat, cv::Mat> pnp = getObjectPosePnP(pointsImage[i], points3d[i],
+                cameraMatrix, distCoeffs, true);
+
         Eigen::Vector3d tvec;
         cv::cv2eigen(get<1>(pnp), tvec);
         tvecs.push_back(tvec);
@@ -112,17 +127,28 @@ int main(){
         Eigen::Matrix3d rMat;
         cv::cv2eigen(r, rMat); // TODO: CHECK!!!
 
-        // TODO: Keypress to reject poses as well!!
-
         rvecs.push_back(rMat);
 
         cv::Mat img = readColorImage(imagelist[i]);
-        drawAxis(get<0>(pnp),get<1>(pnp),camMat1,distCoeffs1,img);
+        drawAxis(get<0>(pnp),get<1>(pnp),cameraMatrix,distCoeffs,img);
 
         cv::namedWindow("Poses",CV_WINDOW_NORMAL);
         cv::imshow("Poses", img);
         cv::resizeWindow("Poses", 1080,720);
-        cv::waitKey(0);
+        //cv::waitKey(0);
+
+        int key = cv::waitKey(0);
+
+        switch(key)
+        {
+            case ((int)('d')):
+
+                invalidPoses.emplace_back(i);
+                cout << "Marked pose in: "
+                        << imagelist[i] << " as invalid by keypress d. " << endl;
+                break;
+        }
+
 
 #if CALIBRATION_DEBUG
         cout << "Checking the validity of the rotation matrices" << endl << endl;
@@ -130,17 +156,27 @@ int main(){
 #endif
     }
 
-    // READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
-    vector<string> poselist;
-    RobotPoseIO::listPoses("/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/pose/","yml",poselist);
+    for(int i =0; i<invalidPoses.size(); i++){
+        imagelist.erase(imagelist.begin()+ invalidPoses[i]);
+        pointsImage.erase(pointsImage.begin() + i);
+        points3d.erase(points3d.begin() + i);
+    }
 
-    for(int i =0; i<invalids.size(); i++){
-        poselist.erase(poselist.begin()+ invalids[i]);
+    /// READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
+    vector<string> poselist;
+    RobotPoseIO::listPoses(robotPosePath,"yml",poselist);
+
+    for(int i =0; i<invalidImgs.size(); i++){
+        poselist.erase(poselist.begin()+ invalidImgs[i]);
+    }
+
+    for(int i =0; i<invalidPoses.size(); i++){
+        poselist.erase(poselist.begin()+ invalidPoses[i]);
     }
 
     cout << "Size of poselist: " << poselist.size() << endl;
 
-    // IMPORT AND CONVERT TO EIGEN 4f TRANSFORMATION MATRIX
+    /// IMPORT AND CONVERT TO EIGEN 4f TRANSFORMATION MATRIX
     vector<Eigen::Matrix4d> tRB_vec;
     vector<Eigen::Matrix4d> tCB_vec;
 
@@ -180,8 +216,8 @@ int main(){
     }
     else {
         if (tRB_vec.size() > 3 && tRB_vec.size() < 10) {
-            cout << "At least 10 pose pairs are recommended. See the original paper for further explaination"
-                 << endl;
+            cout << "At least 10 pose pairs are recommended. "
+                    "See the original paper for further explaination" << endl;
         }
 
         PosePair AB = HandEye::createPosePairs(tRB_vec,tCB_vec);
@@ -194,11 +230,10 @@ int main(){
     << "All should be quite similar" << endl << endl;
 #endif
 
-    // COMPUTE ACTUAL TRANSFORMATION
+    /// COMPUTE ACTUAL TRANSFORMATION
     for (int i = 0; i < pointsImage.size(); i++){
 
-        T.push_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
-        //cout << T[i] << endl << endl;
+        T.emplace_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
 
         // TODO: Visualize pose of gripper
 
@@ -208,9 +243,8 @@ int main(){
     }
 
     cout << "For now, we average the transformation elements." << endl
-         << "For the future, a median computation of each element should be considered for outlier robustness." << endl << endl;
-
-    // TODO: Try to use quaternions all the way - then we can apply median calc to only 4 elements instead of 9.
+         << "For the future, a median computation of each element "
+            "should be considered for outlier robustness." << endl << endl;
 
     Eigen::Matrix4d T_mat;
     T_mat.setZero();
@@ -222,7 +256,6 @@ int main(){
     T_mat = T_mat / pointsImage.size();
     cout << "Final transformation: \n" << T_mat << endl;
 
-    const char* filePath2 = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/extrinsics.yml";
-    RobotPoseIO::writeTransformation(X, filePath2);
+    RobotPoseIO::writeTransformation(X, extCalibPath);
 
 }

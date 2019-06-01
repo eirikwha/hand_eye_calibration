@@ -6,9 +6,9 @@
 // Created by eirik on 26.03.19.
 //
 
-#include "hand_eye_calibration/chessboard_calib_class.h"
-#include "hand_eye_calibration/chessboard_extrinsics_class.h"
-#include "hand_eye_calibration/park_martin_class.h"
+#include "hand_eye_calibration_classes/chessboard_calib_class.h"
+#include "hand_eye_calibration_classes/chessboard_extrinsics_class.h"
+#include "hand_eye_calibration_classes/hand_eye_calib_class.h"
 #include "hand_eye_calibration/pose_io.h"
 #include "hand_eye_calibration/camparam_io.h"
 
@@ -38,9 +38,8 @@ int main(){
                                "hand_eye_calibration/data/calib080419/extrinsics.yml";
 
     vector<string> imagelist;
-    CamParamIO::listImages(imgPath ,"png", imagelist);
+    CamParamIO::listFiles(imgPath ,"png", imagelist);
 
-    /// DETECT CORNERS AND ERASE INVALID IMAGES
     cout << "Size of imagelist: " << imagelist.size() << endl << endl;
 
     /// CALIBRATION OF LENS
@@ -68,28 +67,40 @@ int main(){
 
     cv::destroyAllWindows();
 
-    vector<int> invalids = C.getInvalids();
+    vector<int> invalidImgs = C.getInvalids();
     vector<vector<cv::Point2f>> pointsImage = C.getValidPointsImage();
     vector<vector<cv::Point3f>> points3d = C.getValidPoints3d();
 
-    for(int i =0; i<invalids.size(); i++){
-        imagelist.erase(imagelist.begin()+ invalids[i]);
+    /// ERASE INVALID IMAGES
+    for(int i =0; i<invalidImgs.size(); i++){
+        imagelist.erase(imagelist.begin() + invalidImgs[i]);
     }
 
-    // POSE ESTIMATION OF CHECKERBOARD
+    /// POSE ESTIMATION OF CHECKERBOARD
     ChessBoardExtrinsics CBE(imagelist,intrinsicPath,
             CB, pointsImage, points3d);
 
     vector<Eigen::Matrix4d> tCB_vec = CBE.getChessboardPosesAsEigenMat();
 
-    // READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
+    vector<int> invalidPoses = CBE.getInvalids();
+
+    for(int i =0; i<invalidPoses.size(); i++){
+        imagelist.erase(imagelist.begin()+ invalidPoses[i]);
+        pointsImage.erase(pointsImage.begin() + i);
+        points3d.erase(points3d.begin() + i);
+    }
+
+    /// READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
     vector<string> poselist;
     RobotPoseIO::listPoses(robotPosePath ,"yml",poselist);
 
-    for(int i =0; i<invalids.size(); i++){
-        poselist.erase(poselist.begin()+ invalids[i]);
+    for(int i =0; i<invalidImgs.size(); i++){
+        poselist.erase(poselist.begin()+ invalidImgs[i]);
     }
 
+    for(int i =0; i<invalidPoses.size(); i++){
+        poselist.erase(poselist.begin()+ invalidPoses[i]);
+    }
     cout << "Size of poselist: " << poselist.size() << endl;
     vector<Eigen::Matrix4d> tRB_vec;
 
@@ -109,7 +120,7 @@ int main(){
 
     cout << "Size of tRB_vec: " << tRB_vec.size() << endl;
 
-    // HAND EYE CALIBRATION
+    /// HAND EYE CALIBRATION
     Eigen::Matrix4d X;
     vector<Eigen::Matrix4d> T;
 
@@ -122,7 +133,7 @@ int main(){
                     "See the original paper for further explaination" << endl;
         }
 
-        ParkMartin PM(tRB_vec,tCB_vec);
+        HandEyeCalib PM(tRB_vec,tCB_vec);
         X = PM.getX();
         cout << "X:\n" << X << endl << endl;
     }
@@ -138,7 +149,7 @@ int main(){
 
     for (int i = 0; i < pointsImage.size(); i++){
 
-        T.push_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
+        T.emplace_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
         //cout << T[i] << endl << endl;
 
         // TODO: Visualize pose of gripper

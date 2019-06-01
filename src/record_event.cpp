@@ -11,6 +11,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/conversions.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/filter.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 
 #include "cv_bridge/cv_bridge.h"
@@ -62,7 +63,7 @@ void imageCallback(const sensor_msgs::Image &img) { /// For regular cameras
     ++n_cam;
 }
 
-void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
+void pointCloudToImgCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
 
     cout << "cloud.fields[4].name: " << cloud.fields[4].name << endl <<
          "cloud.fields[4].offset: " << cloud.fields[4].offset << endl <<
@@ -110,7 +111,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check 
     stringstream sstream;
     sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cam << ".png"; // possible error with "/
     cv::imwrite(sstream.str(),color);
-    cout << sstream.str() << endl;
+    ROS_INFO_STREAM("Saved: " << sstream.str());
 
     // TODO: Make it possible to save pointclouds as well, as pointcloud2 or ply. For matching with PPF
 
@@ -118,6 +119,24 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check 
     namedWindow( "Image", CV_WINDOW_AUTOSIZE );
     imshow( "Image", color);
     waitKey(0);
+
+    ++n_cam;
+}
+
+void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
+
+    pcl::PointCloud<pcl::PointXYZ> tempCloud;
+    pcl::PointCloud<pcl::PointXYZ> cloudFiltered;
+    pcl::fromROSMsg(cloud, tempCloud);
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(tempCloud,cloudFiltered,indices);
+
+    stringstream sstream;
+    sstream << calibrationPath << string("pointcloud/") << string("pointcloud") << setw(2)
+            << setfill('0') << n_cam << ".pcd";
+
+    pcl::io::savePCDFileASCII(sstream.str(), cloudFiltered);
+    ROS_INFO_STREAM("Saved: " << sstream.str());
 
     ++n_cam;
 }
@@ -147,41 +166,39 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 }
 
 void printHelp(int, char **argv) {
-    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ {img | pointcloud} \n" << endl;
+    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ {img | pointcloud_to_img | pointcloud} \n" << endl;
 }
-
 
 int main (int argc, char** argv) {
 
-    ROS_INFO_STREAM("Record a set of calib1_pose and pointclouds.");
+    ROS_INFO_STREAM("Record a set of robot poses and corresponding images/pointclouds.");
 
-    if (argc < 5)
-    {
+    if (argc < 5) {
         printHelp (argc, argv);
         return (-1);
     }
 
     const char* imageTopic;
     const char* pointCloudTopic;
+    const char* poseTopic = argv[2];
+    calibrationPath = argv[3];
 
     if(argv[4] == "img"){
         imageTopic = argv[1];
-        ROS_INFO_STREAM("Listening for images at: " << imageTopic << endl);
+        ROS_INFO_STREAM("Listening for images at: " << imageTopic);
     }
-    else if (argv[4] == "pc"){
+    else if (argv[4] == "pointcloud_to_img" || argv[4] == "pointcloud"){
         pointCloudTopic = argv[1];
-        ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic << endl);
+        ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic);
     }
     else{
         printHelp(argc, argv);
         return (-1);
     }
 
-    const char* poseTopic = argv[2];
-    calibrationPath = argv[3];
+    ROS_INFO_STREAM("Listening for robot poses at: " << poseTopic);
+    ROS_INFO_STREAM("Wait 20 seconds for the camera to boot up...");
 
-    ROS_INFO_STREAM("Listening for and calib1_pose at: " << poseTopic << endl);
-    ROS_INFO_STREAM("Wait 20 seconds for the camera to boot up..." << endl);
 
     /// Initialize ROS
     ros::init(argc, argv, "PoseRecorder");
@@ -191,7 +208,10 @@ int main (int argc, char** argv) {
     if(argv[4] == "img"){
         ros::Subscriber sub = nh.subscribe(imageTopic, 1, imageCallback);
     }
-    else{
+    else if (argv[4] == "pointcloud_to_img"){
+        ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
+    }
+    else {
         ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
     }
 

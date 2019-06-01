@@ -68,7 +68,8 @@ include_directories(
     ${EIGEN3_INCLUDE_DIRS}
 )
 
-file(GLOB SOURCES "src/hand_eye_calibration/*.cpp")
+file(GLOB SOURCES "src/hand_eye_calibration/*.cpp"
+        "src/hand_eye_calibration_classes/*.cpp")
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}

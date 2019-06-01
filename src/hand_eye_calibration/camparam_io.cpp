@@ -40,7 +40,7 @@ namespace CamParamIO {
         fs.release();
     }
 
-    int listImages(const char *directoryPath, const char *fileType, vector<string> &list) {
+    int listFiles(const char *directoryPath, const char *fileType, vector<string> &list) {
 
         DIR *d;
         struct dirent *dir;
@@ -75,7 +75,7 @@ namespace CamParamIO {
 
     void writeImageList(const char *filePath, const char *outputName, const char *fileType) {
         vector<string> list;
-        listImages(filePath, fileType, list);
+        listFiles(filePath, fileType, list);
         string path = filePath + string("/") + outputName;
         FileStorage fs(path, FileStorage::WRITE);
         fs << "images" << "[";

@@ -2,8 +2,8 @@
 // Created by eirik on 28.05.19.
 //
 #pragma once
-#ifndef PROJECT_PARK_MARTIN_CLASS_H
-#define PROJECT_PARK_MARTIN_CLASS_H
+#ifndef PROJECT_HAND_EYE_CALIB_CLASS_H
+#define PROJECT_HAND_EYE_CALIB_CLASS_H
 
 #include <Eigen/Eigen>
 #include <iostream>
@@ -14,10 +14,10 @@ struct PosePair{
     std::vector<Eigen::Matrix4d> B;
 };
 
-class ParkMartin {
+class HandEyeCalib {
 public:
-    ParkMartin(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec);
-    ~ParkMartin();
+    HandEyeCalib(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec);
+    ~HandEyeCalib();
 
     Eigen::Matrix4d getX();
     PosePair getPosePairs();
@@ -38,4 +38,4 @@ private:
 };
 
 
-#endif //PROJECT_PARK_MARTIN_CLASS_H
+#endif //PROJECT_HAND_EYE_CALIB_CLASS_H

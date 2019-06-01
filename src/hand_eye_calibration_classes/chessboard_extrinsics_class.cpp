@@ -2,12 +2,13 @@
 // Created by eirik on 30.05.19.
 //
 
-#include "hand_eye_calibration/chessboard_extrinsics_class.h"
+#include "hand_eye_calibration_classes/chessboard_extrinsics_class.h"
 
 using namespace std;
 
 ChessBoardExtrinsics::ChessBoardExtrinsics(std::vector<std::string> &imgList,
-        const char* intrinsicsFilePath, ChessBoard CB): imgList(imgList), CB(CB), intrinsicsPath(intrinsicsFilePath){
+                    const char* intrinsicsFilePath, ChessBoard CB): imgList(imgList),
+                    CB(CB),intrinsicsPath(intrinsicsFilePath){
 
     ChessBoardCalib CBC(imgList,intrinsicsFilePath,CB);
     readCamParams(intrinsicsFilePath);
@@ -19,11 +20,11 @@ ChessBoardExtrinsics::ChessBoardExtrinsics(std::vector<std::string> &imgList,
 
 ChessBoardExtrinsics::ChessBoardExtrinsics(std::vector<std::string> &imgList,
         const char* intrinsicsFilePath, ChessBoard CB, std::vector<std::vector<cv::Point2f>> &pointsImage,
-        std::vector<std::vector<cv::Point3f>> &points3d): imgList(imgList), CB(CB), intrinsicsPath(intrinsicsFilePath),
-        pointsImage(pointsImage), points3d(points3d){
+        std::vector<std::vector<cv::Point3f>> &points3d): imgList(imgList), CB(CB),
+        intrinsicsPath(intrinsicsFilePath), pointsImage(pointsImage), points3d(points3d){
 
-        readCamParams(intrinsicsFilePath);
-        pnpRansac = true;
+    readCamParams(intrinsicsFilePath);
+    pnpRansac = true;
 }
 
 std::vector<Eigen::Matrix4d> ChessBoardExtrinsics::getChessboardPosesAsEigenMat(){
@@ -31,6 +32,10 @@ std::vector<Eigen::Matrix4d> ChessBoardExtrinsics::getChessboardPosesAsEigenMat(
     posesToEigenMatrix();
 
     return TVec;
+}
+
+std::vector<int> ChessBoardExtrinsics::getInvalids(){
+    return invalids;
 }
 
 void ChessBoardExtrinsics::readColorImage(string &fileName){
@@ -55,10 +60,12 @@ void ChessBoardExtrinsics::readCamParams(const char* &fileName){
 void ChessBoardExtrinsics::computeObjectPosePnP(int i){
     try {
         if (pnpRansac) {
-            cv::solvePnPRansac(points3d[i], pointsImage[i], cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);
+            cv::solvePnPRansac(points3d[i], pointsImage[i], cameraMatrix,
+                    distCoeffs, rvec, tvec, false, CV_ITERATIVE);
         }
         else {
-            cv::solvePnP(points3d[i], pointsImage[i], cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);
+            cv::solvePnP(points3d[i], pointsImage[i], cameraMatrix,
+                    distCoeffs, rvec, tvec, false, CV_ITERATIVE);
         }
     }
     catch(cv::Exception& e) {
@@ -67,8 +74,9 @@ void ChessBoardExtrinsics::computeObjectPosePnP(int i){
     }
 }
 
-void ChessBoardExtrinsics::drawVectorProjectPointsMethod(float x, float y, float z, float r, float g, float b,
-                        cv::Mat &rvec, cv::Mat &tvec, cv::Mat &cameraMatrix, cv::Mat &distCoeffs, cv::Mat &dst) {
+void ChessBoardExtrinsics::drawVectorProjectPointsMethod(float x, float y, float z,
+                            float r, float g, float b, cv::Mat &rvec, cv::Mat &tvec,
+                            cv::Mat &cameraMatrix, cv::Mat &distCoeffs, cv::Mat &dst) {
 
     std::vector<cv::Point3f> points;
     std::vector<cv::Point2f> projectedPoints;
@@ -92,16 +100,15 @@ void ChessBoardExtrinsics::drawAxis(cv::Mat &rvec, cv::Mat &tvec, cv::Mat &camer
 
 void ChessBoardExtrinsics::verifyAndStorePoses() {
 
+    cout << "Delete image poses by pressing d, accept by pressing ENTER button." << endl;
+
     for (int i = 0; i < pointsImage.size(); i++) {
         computeObjectPosePnP(i); // TODO: how to iterate here?
-        cv::cv2eigen(tvec,tvecEigen);
+        cv::cv2eigen(tvec, tvecEigen);
         tvecs.emplace_back(tvecEigen);
         cv::Mat r;
         cv::Rodrigues(rvec, r);
         cv::cv2eigen(r, rMat); // TODO: CHECK!!!
-
-// TODO: Keypress to reject poses as well!! Needs to also notify robot poses which images/corresponding
-//  poses that should be deleted.
 
         rvecs.emplace_back(rMat);
 
@@ -111,7 +118,15 @@ void ChessBoardExtrinsics::verifyAndStorePoses() {
         cv::namedWindow("Poses", CV_WINDOW_NORMAL);
         cv::imshow("Poses", img);
         cv::resizeWindow("Poses", 1080, 720);
-        cv::waitKey(0);
+
+        int key = cv::waitKey(0);
+        switch (key) {
+            case ((int) ('d')):
+                invalids.emplace_back(i);
+                cout << "Marked pose in: "
+                     << imgList[i] << " as invalid by keypress d. " << endl;
+                break;
+        }
     }
 }
 

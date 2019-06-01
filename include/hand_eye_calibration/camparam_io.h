@@ -13,7 +13,7 @@ namespace CamParamIO {
 
     void writeCamParams(cv::Mat cameraMatrix, cv::Mat distCoeffs, const char *filePath);
 
-    int listImages(const char *directoryPath, const char *fileType, vector<string> &list);
+    int listFiles(const char *directoryPath, const char *fileType, vector<string> &list);
 
     void writeImageList(const char *filePath, const char *outputName, const char *fileType);
 

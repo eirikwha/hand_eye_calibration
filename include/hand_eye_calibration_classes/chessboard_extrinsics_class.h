@@ -5,8 +5,8 @@
 #ifndef PROJECT_CHESSBOARD_EXTRINSICS_CLASS_H
 #define PROJECT_CHESSBOARD_EXTRINSICS_CLASS_H
 
-#include "../../include/hand_eye_calibration/chessboard_class.h"
-#include "../../include/hand_eye_calibration/chessboard_calib_class.h"
+#include "chessboard_class.h"
+#include "chessboard_calib_class.h"
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
 
@@ -21,6 +21,7 @@ public:
 
     bool pnpRansac;
     std::vector<Eigen::Matrix4d> getChessboardPosesAsEigenMat();
+    std::vector<int> getInvalids();
 
 
 private:

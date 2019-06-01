@@ -9,7 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "../../include/hand_eye_calibration/chessboard_class.h"
+#include "chessboard_class.h"
 
 struct ChessBoardCalibResult{
     cv::Mat cameraMatrix;

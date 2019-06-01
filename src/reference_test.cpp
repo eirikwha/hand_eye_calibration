@@ -2,7 +2,7 @@
 // Created by eirik on 18.05.19.
 //
 
-#include <hand_eye_calibration/park_martin_class.h>
+#include <hand_eye_calibration_classes/hand_eye_calib_class.h>
 #include <Eigen/Eigen>
 #include <iostream>
 #include <vector>

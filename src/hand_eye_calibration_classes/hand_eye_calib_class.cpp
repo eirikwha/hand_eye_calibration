@@ -2,29 +2,29 @@
 // Created by eirik on 28.05.19.
 //
 
-#include <hand_eye_calibration/park_martin_class.h>
+#include <hand_eye_calibration_classes/hand_eye_calib_class.h>
 
 #define ESTIMATION_DEBUG 0
 
 using namespace std;
 using namespace Eigen;
 
-ParkMartin::ParkMartin(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec) {
+HandEyeCalib::HandEyeCalib(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec) {
     createPosePairs(tRB_vec, tCB_vec);
     X = performEstimation();
 }
 
-ParkMartin::~ParkMartin() = default;
+HandEyeCalib::~HandEyeCalib() = default;
 
-Matrix4d ParkMartin::getX(){
+Matrix4d HandEyeCalib::getX(){
     return X;
 }
 
-PosePair ParkMartin::getPosePairs(){
+PosePair HandEyeCalib::getPosePairs(){
     return AB;
 }
 
-Vector3d ParkMartin::logTheta(Matrix3d R) {
+Vector3d HandEyeCalib::logTheta(Matrix3d R) {
 
     //Assuming that R is never an Identity
     double theta = acos((R.trace() - 1) / 2);
@@ -32,7 +32,7 @@ Vector3d ParkMartin::logTheta(Matrix3d R) {
     return {(R(2, 1)- R(1,2))*logT, (R(0, 2) - R(2,0))*logT, (R(1, 0)-R(0,1))*logT};
 }
 
-Matrix3d ParkMartin::invsqrt(Matrix3d M){
+Matrix3d HandEyeCalib::invsqrt(Matrix3d M){
 
     Eigen::JacobiSVD<Matrix3d> svd(M,ComputeFullU | ComputeFullV);
     Eigen::Vector3d S_v;
@@ -57,7 +57,7 @@ Matrix3d ParkMartin::invsqrt(Matrix3d M){
     }
 }
 
-void ParkMartin::createPosePairs(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::Matrix4d> tCB_vec){
+void HandEyeCalib::createPosePairs(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::Matrix4d> tCB_vec){
 
     for (int i = 0; i < tRB_vec.size(); i++) {
         for (int j = 0; j < tRB_vec.size(); j++) {
@@ -69,7 +69,7 @@ void ParkMartin::createPosePairs(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::
     }
 }
 
-Matrix4d ParkMartin::performEstimation() {
+Matrix4d HandEyeCalib::performEstimation() {
 
     Matrix3d M;
     Matrix4d X;
