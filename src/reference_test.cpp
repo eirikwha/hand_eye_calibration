@@ -8,7 +8,9 @@
 #include <vector>
 
 
-// VALIDATION OF THE ALGORITHM IN parkmartin.cpp, by running the example from the reference paper
+/// VALIDATION OF THE ALGORITHM,
+/// by running the example from the reference paper
+
 using namespace std;
 using namespace Eigen;
 
@@ -52,11 +54,7 @@ int main() {
     B.push_back(B1);
     B.push_back(B2);
 
-    PosePair AB;
-    AB.A = A;
-    AB.B = B;
-
-    X = ParkMartin(AB).getX();
+    X = HandEyeCalib(A,B).getX();
 
     cout << "X:\n" << X << endl;
 

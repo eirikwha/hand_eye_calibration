@@ -88,7 +88,7 @@ add_executable(
 
 add_executable(
         ${PROJECT_NAME}_calibration_2
-        src/calibration_2.cpp
+        src/calibrate_class_based.cpp
 )
 
 
