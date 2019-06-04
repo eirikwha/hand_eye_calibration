@@ -7,6 +7,7 @@
 
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
+#include <halcon_pose_estimation/halcon_surface_matching.h>
 
 
 class HalconPartExtrinsics {
@@ -19,10 +20,9 @@ public:
 
     std::vector <Eigen::Matrix4d> getPartPosesAsEigenMat();
     std::vector<int> getInvalids();
-
 private:
-    std::vector<std::string> pointCloudList;
 
+    std::vector<std::string> pointCloudList;
     std::vector<int> invalids;
 
     //std::vector<Eigen::Vector3d> tvecs;

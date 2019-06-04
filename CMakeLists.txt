@@ -12,6 +12,7 @@ find_package(catkin REQUIRED
     sensor_msgs
     geometry_msgs
     cv_bridge
+    halcon_pose_estimation
 )
 
 find_package( OpenCV REQUIRED )
@@ -46,6 +47,7 @@ catkin_package(
     sensor_msgs
     geometry_msgs
     cv_bridge
+    halcon_pose_estimation
 #    asr_halcon_bridge
 
 #  DEPENDS
