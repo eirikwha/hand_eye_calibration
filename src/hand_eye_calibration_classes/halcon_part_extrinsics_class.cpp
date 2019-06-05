@@ -12,14 +12,14 @@
 
 // Save in the same way as for chessboard
 
-HalconPartExtrinsics::HalconPartExtrinsics(std::vector<std::string> &pointCloudList): pointCloudList(pointCloudList) {
+HalconPartExtrinsics::HalconPartExtrinsics(std::vector<std::string> &pointCloudList, bool edges):
+                                                pointCloudList(pointCloudList), edges(edges) {
 
     HalconIO::readSurfaceModel(surfModelPath, model);
     initializeMatchingParams();
     if (edges){
         initializeEdgeMatchingParams();
     }
-
 }
 
 void HalconPartExtrinsics::initializeMatchingParams(){
@@ -36,7 +36,7 @@ void HalconPartExtrinsics::initializeMatchingParams(){
     genParamName.Append("pose_ref_dist_threshold_rel");
     genParamName.Append("pose_ref_scoring_dist_rel");
 
-    genParamValue.Append(5);
+    genParamValue.Append(1);
     genParamValue.Append(0.5);
     genParamValue.Append("mls");
     genParamValue.Append("true");
@@ -51,9 +51,9 @@ void HalconPartExtrinsics::initializeMatchingParams(){
 }
 
 void HalconPartExtrinsics::initializeEdgeMatchingParams(){
+    // TODO: MAKE PARAM HPP FILE
 
     sfmGenParamName.Append("camera_parameter 0");
-    // TODO: FOR LOOP, GET VALUES DIRECTLY FROM YAML FILE
     camparam.Append("area_scan_polynomial");
     camparam.Append(1.61928e-02);
     camparam.Append(9.52772e+02);
@@ -94,29 +94,35 @@ bool HalconPartExtrinsics::estimatePose(int i) {
 
     HalconSurfaceMatching::findSurfaceModel3D(model, scene, poses, matchingResultID,
                                               genParamName, genParamValue);
-
     return poses.Length() / 7 >= 1;
     // store as something that can be visualized
 }
 
-void HalconPartExtrinsics::verifyAndStorePoses(){
+void HalconPartExtrinsics::verifyAndStorePoses(){ // TODO: ROS visualization rviz
     for (int i = 0; i < pointCloudList.size(); i++){
         estimatePose(i);
 
         if (estimatePose(i)){
-            // Some visualization step and waitkey here
-            //if(key == 0) {
-            poseToEigenMatrix(poses[0]);
-            TVec.emplace_back(tmp);
-            //}
-            //else {
-            // add to invalids list?
-            // }
+            // TODO: Read green ply and visualize with pcl (Not good, but ok for now)
+            int key = cv::waitKey(0);
+            switch (key) {
+                case ((int) ('d')):
+                    invalids.emplace_back(i);
+                    cout << "Marked pose in: " << pointCloudList[i]
+                    << " as invalid by keypress d. " << endl;
+                    break;
+
+                default:
+                    cout << "Stored pose in: "
+                         << pointCloudList[i] << endl;
+                    poseToEigenMatrix(poses[0]);
+                    TVec.emplace_back(tmp);
+                    break;
+            }
         }
         else{
             invalids.emplace_back(i);
         }
-
     }
 }
 

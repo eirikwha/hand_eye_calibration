@@ -7,6 +7,7 @@
 
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
+#include <opencv2/highgui.hpp>
 #include <halcon_pose_estimation/halcon_surface_matching.h>
 #include <halcon_pose_estimation/halcon_io.h>
 #include <halcon_pose_estimation/halcon_pose_conversion.h>
@@ -14,22 +15,23 @@
 
 class HalconPartExtrinsics {
 public:
-    HalconPartExtrinsics(std::vector <std::string> &pointCloudList);
+    HalconPartExtrinsics(std::vector <std::string> &pointCloudList, bool edges);
 
     ~HalconPartExtrinsics() = default;
 
+    std::vector <Eigen::Matrix4d> getPartPosesAsEigenMat();
+    std::vector<int> getInvalids();
+
+private:
+    const char* surfModelPath;
+    std::vector<std::string> pointCloudList;
     bool edges;
     float unit;
 
-    std::vector <Eigen::Matrix4d> getPartPosesAsEigenMat();
-    std::vector<int> getInvalids();
-private:
     HTuple model, scene, bestPose, poses, matchingResultID;
     HTuple genParamName, genParamValue;
     HTuple sfmGenParamName, sfmGenParamValue, camparam;
 
-    const char* surfModelPath;
-    std::vector<std::string> pointCloudList;
     std::vector<int> invalids;
     Eigen::Matrix4f tmp;
     std::vector<Eigen::Matrix4d> TVec;
