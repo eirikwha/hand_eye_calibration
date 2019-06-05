@@ -131,7 +131,7 @@ void ChessBoardExtrinsics::verifyAndStorePoses() {
 }
 
 void ChessBoardExtrinsics::posesToEigenMatrix(){
-    for (int i = 0; i<imgList.size();i++) {
+    for (int i = 0; i<rvecs.size();i++) {
         Eigen::Matrix4d tmp;
         tmp.setIdentity();
         tmp.block(0, 0, 3, 3) = rvecs[i];

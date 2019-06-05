@@ -8,6 +8,8 @@
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
 #include <halcon_pose_estimation/halcon_surface_matching.h>
+#include <halcon_pose_estimation/halcon_io.h>
+#include <halcon_pose_estimation/halcon_pose_conversion.h>
 
 
 class HalconPartExtrinsics {
@@ -17,22 +19,27 @@ public:
     ~HalconPartExtrinsics() = default;
 
     bool edges;
+    float unit;
 
     std::vector <Eigen::Matrix4d> getPartPosesAsEigenMat();
     std::vector<int> getInvalids();
 private:
+    HTuple model, scene, bestPose, poses, matchingResultID;
+    HTuple genParamName, genParamValue;
+    HTuple sfmGenParamName, sfmGenParamValue, camparam;
 
+    const char* surfModelPath;
     std::vector<std::string> pointCloudList;
     std::vector<int> invalids;
-
-    //std::vector<Eigen::Vector3d> tvecs;
-    //std::vector<Eigen::Matrix3d> rvecs;
+    Eigen::Matrix4f tmp;
     std::vector<Eigen::Matrix4d> TVec;
 
-    void readPointCloud(std::string &fileName);
-    void estimatePose(int i);
+    void initializeMatchingParams();
+    void initializeEdgeMatchingParams();
+    void readPointCloud(const char* fileName);
+    bool estimatePose(int i);
     void verifyAndStorePoses();
-    void posesToEigenMatrix();
+    void poseToEigenMatrix(HTuple pose);
 };
 
 
