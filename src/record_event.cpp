@@ -135,7 +135,7 @@ void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
     sstream << calibrationPath << string("pointcloud/") << string("pointcloud") << setw(2)
             << setfill('0') << n_cam << ".pcd";
 
-    pcl::io::savePCDFileASCII(sstream.str(), cloudFiltered);
+    pcl::io::savePLYFileASCII(sstream.str(), cloudFiltered);
     ROS_INFO_STREAM("Saved: " << sstream.str());
 
     ++n_cam;
@@ -166,7 +166,7 @@ void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 }
 
 void printHelp(int, char **argv) {
-    cout << "Syntax is: "<< argv[0] <<  " /pointCloudTopic /poseTopic /calibration/path/ {img | pointcloud_to_img | pointcloud} \n" << endl;
+    cout << "Syntax is: "<< argv[0] <<  " /visualDataTopic /poseTopic /calibration/path/ {img | pointcloud_to_img | pointcloud} \n" << endl;
 }
 
 int main (int argc, char** argv) {

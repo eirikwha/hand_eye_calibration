@@ -98,12 +98,33 @@ bool HalconPartExtrinsics::estimatePose(int i) {
     // store as something that can be visualized
 }
 
+void HalconPartExtrinsics::visualizePose(int i){
+
+    HTuple modelVis;
+    HalconIO::readObjectModel3D(plyModelPath, 1, modelVis);
+
+    cout << "Trying to transform model into best pose for visualization" << endl;
+    HalconObjectModel::rigidTrans(bestPose, modelVis, transformedModel);
+
+    cout << "Trying to save transformed model." << endl;
+    HalconIO::writeObjectModel3DPly(transformedPlyPath, transformedModel);
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr model1 (new pcl::PointCloud<pcl::PointXYZRGB>());
+    model1 = PCLFileHandler::loadPlyToPointXYZRGB(transformedPlyPath);
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr scene1 (new pcl::PointCloud<pcl::PointXYZRGB>());
+    scene1 = PCLFileHandler::loadPlyToPointXYZRGB(pointCloudList[i].c_str());
+    PCLViz::twoInOneVis(model1,scene1);
+
+}
+
 void HalconPartExtrinsics::verifyAndStorePoses(){ // TODO: ROS visualization rviz
     for (int i = 0; i < pointCloudList.size(); i++){
         estimatePose(i);
 
         if (estimatePose(i)){
             // TODO: Read green ply and visualize with pcl (Not good, but ok for now)
+            visualizePose();
             int key = cv::waitKey(0);
             switch (key) {
                 case ((int) ('d')):
