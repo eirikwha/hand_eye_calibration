@@ -5,15 +5,15 @@
 #ifndef PROJECT_HALCON_PART_EXTRINSICS_CLASS_H
 #define PROJECT_HALCON_PART_EXTRINSICS_CLASS_H
 
-#include <Eigen/Geometry>
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/highgui.hpp>
-#include <halcon_pose_estimation/halcon_surface_matching.h>
-#include <halcon_pose_estimation/halcon_io.h>
-#include <halcon_pose_estimation/halcon_pose_conversion.h>
-#include <halcon_pose_estimation/pcl_file_handler.h>
-#include <halcon_pose_estimation/pcl_viz.h>
-#include <halcon_pose_estimation/halcon_object_model.h>
+#include "../../../../../../../usr/include/eigen3/Eigen/Geometry"
+#include "../../../../../../../opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/eigen.hpp"
+#include "../../../../../../../opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/highgui.hpp"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/halcon_surface_matching.h"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/halcon_io.h"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/halcon_pose_conversion.h"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/pcl_file_handler.h"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/pcl_viz.h"
+#include "../../../halcon_pose_estimation/include/halcon_pose_estimation/halcon_object_model.h"
 
 
 class HalconPartExtrinsics {
@@ -22,7 +22,7 @@ public:
 
     ~HalconPartExtrinsics() = default;
 
-    std::vector <Eigen::Matrix4d> getPartPosesAsEigenMat();
+    std::vector <Eigen::Matrix4f> getPartPosesAsEigenMat();
     std::vector<int> getInvalids();
 
 private:
@@ -43,7 +43,7 @@ private:
 
     std::vector<int> invalids;
     Eigen::Matrix4f tmp;
-    std::vector<Eigen::Matrix4d> TVec;
+    std::vector<Eigen::Matrix4f> TVec; // TODO: Should be doubles?
 
     void initializeMatchingParams();
     void initializeEdgeMatchingParams();

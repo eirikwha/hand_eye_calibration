@@ -27,11 +27,9 @@ vector<geometry_msgs::PoseStamped> poseList;
 string calibrationPath;
 int height = 1200;
 int width = 1920;
-int n_cam = 0, n_pose = 0;
+int n_img = 0, n_pc = 0, n_pose = 0;
 
 // TODO: MAKE IT WORK FOR OTHER POINTCLOUDS AS WELL
-// TODO: Add a function that runs matching (findcorners or some 6d pose est, and only saves if matches are found)
-// TODO: Maybe run in livemode?
 // TODO: Publish image to view in rviz
 
 void imageCallback(const sensor_msgs::Image &img) { /// For regular cameras
@@ -51,7 +49,7 @@ void imageCallback(const sensor_msgs::Image &img) { /// For regular cameras
     }
 
     stringstream sstream;
-    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cam << ".png"; // possible error with "/
+    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_img << ".png"; // possible error with "/
     cv::imwrite(sstream.str(),color);
     cout << sstream.str() << endl;
 
@@ -60,7 +58,7 @@ void imageCallback(const sensor_msgs::Image &img) { /// For regular cameras
     imshow( "Image", color);
     waitKey(0);
 
-    ++n_cam;
+    ++n_img;
 }
 
 void pointCloudToImgCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: check data types - double more correct??
@@ -109,42 +107,40 @@ void pointCloudToImgCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: c
 
     }
     stringstream sstream;
-    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_cam << ".png"; // possible error with "/
+    sstream << calibrationPath << string("img/") << string("img") << setw(2) << setfill('0') << n_img << ".png"; // possible error with "/
     cv::imwrite(sstream.str(),color);
     ROS_INFO_STREAM("Saved: " << sstream.str());
-
-    // TODO: Make it possible to save pointclouds as well, as pointcloud2 or ply. For matching with PPF
 
     /// Show your results
     namedWindow( "Image", CV_WINDOW_AUTOSIZE );
     imshow( "Image", color);
     waitKey(0);
 
-    ++n_cam;
+    ++n_img;
 }
 
 void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
 
-    pcl::PointCloud<pcl::PointXYZ> tempCloud;
-    pcl::PointCloud<pcl::PointXYZ> cloudFiltered;
+    pcl::PointCloud<pcl::PointXYZRGBA> tempCloud;
+    ///pcl::PointCloud<pcl::PointXYZ> cloudFiltered;
     pcl::fromROSMsg(cloud, tempCloud);
-    std::vector<int> indices;
-    pcl::removeNaNFromPointCloud(tempCloud,cloudFiltered,indices);
+    //std::vector<int> indices;
+    //pcl::removeNaNFromPointCloud(tempCloud,cloudFiltered,indices);
 
     stringstream sstream;
     sstream << calibrationPath << string("pointcloud/") << string("pointcloud") << setw(2)
-            << setfill('0') << n_cam << ".pcd";
+            << setfill('0') << n_pc << ".pcd";
 
-    pcl::io::savePLYFileASCII(sstream.str(), cloudFiltered);
+    //pcl::io::savePLYFileASCII(sstream.str(), cloudFiltered);
+    pcl::io::savePCDFile(sstream.str(), tempCloud, false);
     ROS_INFO_STREAM("Saved: " << sstream.str());
 
-    ++n_cam;
+    ++n_pc;
 }
 
 void poseCallback(const geometry_msgs::PoseStamped &robotPose){
 
-    // For every recorded point cloud, a pose is recorded. n_pose and n_cloud manages the sequencing of the recording.
-    if (n_pose < n_cam){
+    if (n_pose < n_img || n_pose < n_pc){
         vector<double> pose;
         pose.push_back(robotPose.pose.position.x);
         pose.push_back(robotPose.pose.position.y);
@@ -212,7 +208,8 @@ int main (int argc, char** argv) {
         ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
     }
     else {
-        ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
+        ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
+        ros::Subscriber sub1 = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
     }
 
     /// Create a ROS subscriber for the input pose

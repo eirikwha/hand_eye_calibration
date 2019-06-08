@@ -2,7 +2,7 @@
 // Created by eirik on 01.06.19.
 //
 
-#include "hand_eye_calibration_classes/halcon_part_extrinsics_class.h"
+#include "halcon_part_extrinsics_class.h"
 // List of files
 // Input is .pcd in pointxyz format, same as pose estimator pkg
 
@@ -77,7 +77,7 @@ void HalconPartExtrinsics::initializeEdgeMatchingParams(){
     }
 }
 
-std::vector <Eigen::Matrix4d> HalconPartExtrinsics::getPartPosesAsEigenMat(){
+std::vector <Eigen::Matrix4f> HalconPartExtrinsics::getPartPosesAsEigenMat(){ // TODO: Should be double?
     return TVec;
 }
 
@@ -124,7 +124,7 @@ void HalconPartExtrinsics::verifyAndStorePoses(){ // TODO: ROS visualization rvi
 
         if (estimatePose(i)){
             // TODO: Read green ply and visualize with pcl (Not good, but ok for now)
-            visualizePose();
+            visualizePose(i);
             int key = cv::waitKey(0);
             switch (key) {
                 case ((int) ('d')):
