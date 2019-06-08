@@ -12,7 +12,7 @@ find_package(catkin REQUIRED
     sensor_msgs
     geometry_msgs
     cv_bridge
-    halcon_pose_estimation
+    pose_estimator_msgs
 )
 
 find_package( OpenCV REQUIRED )
@@ -47,7 +47,8 @@ catkin_package(
     sensor_msgs
     geometry_msgs
     cv_bridge
-    halcon_pose_estimation
+    pose_estimator_msgs
+
 #    asr_halcon_bridge
 
 #  DEPENDS
@@ -71,32 +72,32 @@ include_directories(
 )
 
 file(GLOB SOURCES "src/hand_eye_calibration/*.cpp"
-        "src/hand_eye_calibration_classes/*.cpp")
+    "src/hand_eye_calibration_classes/*.cpp")
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-            ${SOURCES})
+    ${SOURCES})
 
 ## Declare cpp executables
 add_executable(
-        ${PROJECT_NAME}_test
-        src/reference_test.cpp
+    ${PROJECT_NAME}_test
+    src/reference_test.cpp
 )
 
 add_executable(
-        ${PROJECT_NAME}_calibrate
-        src/calibrate.cpp
+    ${PROJECT_NAME}_calibrate
+    src/calibrate.cpp
 )
 
 add_executable(
-        ${PROJECT_NAME}_calibration_2
-        src/calibrate_class_based.cpp
+    ${PROJECT_NAME}_calibration_2
+    src/calibrate_class_based.cpp
 )
 
 
 add_executable(
-        recorder
-        src/record_event.cpp
+    recorder
+    src/record_event.cpp
 )
 
 ## Specify libraries to link executable targets against
@@ -115,10 +116,10 @@ target_link_libraries(
 )
 
 target_link_libraries(
-        ${PROJECT_NAME}_calibration_2
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBRARIES}
+    ${PROJECT_NAME}_calibration_2
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(

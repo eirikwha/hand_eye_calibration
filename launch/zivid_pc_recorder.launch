@@ -1,5 +1,11 @@
 <launch>
 
+	<!-- Recorder launch file -->
+	<include file="$(find hand_eye_calibration)/launch/recorder.launch">
+		<arg name = "run_config" value = "pointcloud"/>
+		<arg name="calib_data_folder" value="$(find hand_eye_calibration)/data/calib_test"/>
+	</include>
+
 	<!-- Zivid ROS wrapper node -->
 	<node name="zivid_ros_wrapper" pkg="zivid_ros_wrapper" type="zivid_ros_wrapper_node" >
         <param name="camera_config/camera_mode" value="2" />
@@ -8,10 +14,5 @@
 	<!-- Zivid ROS republisher -->
 	<node name="zivid_ros_wrapper_hdr_republisher_node" pkg="zivid_ros_wrapper" 		
 	type="zivid_ros_wrapper_hdr_republisher_node" output="screen"/>
-	
-	<!-- Recorder node -->
-	<node name="recorder" pkg="hand_eye_calibration" type="recorder"
-  	args="/hdr_pointcloud /robot_state /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/
-			 pointcloud"/>
 
 </launch>

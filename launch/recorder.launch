@@ -1,0 +1,11 @@
+<launch>
+	<!-- Default arguments -->
+	<arg name="visual_data_topic" default="/pointcloud" />
+	<arg name="robot_state_topic" default="/robot_state" />
+	<arg name="calib_data_folder" default="$(find hand_eye_calibration)/data/calib_test" />
+	<arg name="run_config" default="pointcloud_to_img" />
+
+	<!-- Recorder node -->
+	<node name="recorder" pkg="hand_eye_calibration" type="recorder"
+		  args = "$(arg visual_data_topic) $(arg robot_state_topic) $(arg calib_data_folder) $(arg run_config)"/>
+</launch>
