@@ -168,26 +168,23 @@ void printHelp(int, char **argv) {
 int main (int argc, char** argv) {
 
     ROS_INFO_STREAM("Record a set of robot poses and corresponding images/pointclouds.");
-
     if (argc < 5) {
         printHelp (argc, argv);
         return (-1);
     }
 
-    const char* imageTopic;
-    const char* pointCloudTopic;
-    const char* poseTopic = argv[2];
+    const char *imageTopic;
+    const char *pointCloudTopic;
+    const char *poseTopic = argv[2];
     calibrationPath = argv[3];
 
-    if(argv[4] == "img"){
+    if (argv[4] == string("img")) {
         imageTopic = argv[1];
         ROS_INFO_STREAM("Listening for images at: " << imageTopic);
-    }
-    else if (argv[4] == "pointcloud_to_img" || argv[4] == "pointcloud"){
+    } else if (argv[4] == string("pointcloud_to_img") || argv[4] == string("pointcloud")) {
         pointCloudTopic = argv[1];
         ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic);
-    }
-    else{
+    } else {
         printHelp(argc, argv);
         return (-1);
     }
@@ -201,18 +198,16 @@ int main (int argc, char** argv) {
     ros::NodeHandle nh;
 
     /// Create a ROS subscriber for the input image or pointcloud
-    if(argv[4] == "img"){
+    if (argv[4] == string("img")) {
         ros::Subscriber sub = nh.subscribe(imageTopic, 1, imageCallback);
-    }
-    else if (argv[4] == "pointcloud_to_img"){
+    } else if (argv[4] == string("pointcloud_to_img")) {
         ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
-    }
-    else {
+    } else {
         ros::Subscriber sub = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
         ros::Subscriber sub1 = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
     }
 
     /// Create a ROS subscriber for the input pose
-    ros::Subscriber sub2 = nh.subscribe(poseTopic,1,poseCallback);
+    ros::Subscriber sub2 = nh.subscribe(poseTopic, 1, poseCallback);
     ros::spin();
 }

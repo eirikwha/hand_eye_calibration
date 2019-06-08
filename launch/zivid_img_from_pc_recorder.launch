@@ -6,12 +6,11 @@
 	</node>
 	
 	<!-- Zivid ROS republisher -->
-	<node name="zivid_ros_wrapper_service_republisher_node" pkg="zivid_ros_wrapper" 		
+	<node name="zivid_ros_wrapper_hdr_republisher_node" pkg="zivid_ros_wrapper" 		
 	type="zivid_ros_wrapper_hdr_republisher_node" output="screen"/>
 	
 	<!-- Recorder node -->
 	<node name="recorder" pkg="hand_eye_calibration" type="recorder"
-  	args="/hdr_pointcloud /robot_state /home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/img
-			/home/minion/eirik_ws/src/hand_eye_calibration/data/calib080419/pose pointcloud_to_img"/>
+  	args="/hdr_pointcloud /robot_state /home/catkin_ws/src/hand_eye_calibration/data/calib070619/ pointcloud_to_img"/>
 
 </launch>
