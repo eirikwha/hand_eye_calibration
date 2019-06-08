@@ -7,5 +7,5 @@
 
 	<!-- Recorder node -->
 	<node name="recorder" pkg="hand_eye_calibration" type="recorder"
-		  args = "$(arg visual_data_topic) $(arg robot_state_topic) $(arg calib_data_folder) $(arg run_config)"/>
+		  args = "$(arg visual_data_topic) $(arg robot_state_topic) $(arg calib_data_folder) $(arg run_config)" output="screen"/>
 </launch>
