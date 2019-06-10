@@ -99,6 +99,11 @@ add_executable(
     src/record_event.cpp
 )
 
+add_executable(
+        ${PROJECT_NAME}_benchmark
+        src/calib_benchmark.cpp
+)
+
 ## Specify libraries to link executable targets against
 target_link_libraries(
     ${PROJECT_NAME}_test
@@ -119,6 +124,13 @@ target_link_libraries(
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
+)
+
+target_link_libraries(
+        ${PROJECT_NAME}_benchmark
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(
