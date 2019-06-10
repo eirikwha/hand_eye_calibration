@@ -1,0 +1,9 @@
+<launch>
+	<!-- Default arguments -->
+	<arg name="robot_state_topic" default="/robot_state" />
+	<arg name="pose_data_folder" default="$(find hand_eye_calibration)/data/pose_recorder_test/" />
+
+	<!-- Recorder node -->
+	<node name="pose_recorder" pkg="hand_eye_calibration" type="pose_recorder"
+		  args = "$(arg robot_state_topic) $(arg pose_data_folder)" output="screen"/>
+</launch>

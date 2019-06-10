@@ -1,0 +1,15 @@
+<launch>
+
+	<!-- Recorder launch file -->
+	<include file="$(find hand_eye_calibration)/launch/pose_recorder.launch">
+	</include>
+
+	<!--Dummy publishers launch file -->
+	<include file="$(find dummy_publisher)/launch/pose_and_pointcloud2_dummy_publisher.launch">
+		<arg name="pcd_data_folder" value="/home/eirik/Desktop/dummy_test/" />
+		<param name="pointcloud2_topic" value ="/hdr_pointcloud"/>
+		<arg name="pose_stamped_topic" value="/robot_state" />
+		<arg name="pose_topic" value ="/robot_state_pose"/>
+	</include>
+
+</launch>
