@@ -9,9 +9,9 @@
 
 using namespace std;
 
-constexpr int numCornersHor = 9;
-constexpr int numCornersVer = 7;
-constexpr float square_size = 10; //mm
+constexpr int numCornersHor = 10;
+constexpr int numCornersVer = 6;
+constexpr float square_size = 30.01; //mm
 
 cv::Size board_sz = cv::Size(numCornersHor, numCornersVer);
 

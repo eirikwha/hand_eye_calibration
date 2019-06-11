@@ -126,18 +126,18 @@ void pointCloudToImgCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: c
 
 void pointCloudCallback(const sensor_msgs::PointCloud2 &cloud) {
 
-    pcl::PointCloud<pcl::PointXYZRGBA> tempCloud;
-    ///pcl::PointCloud<pcl::PointXYZ> cloudFiltered;
+    pcl::PointCloud<pcl::PointXYZ> tempCloud;
+    pcl::PointCloud<pcl::PointXYZ> cloudFiltered;
     pcl::fromROSMsg(cloud, tempCloud);
-    //std::vector<int> indices;
-    //pcl::removeNaNFromPointCloud(tempCloud,cloudFiltered,indices);
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(tempCloud,cloudFiltered,indices);
 
     stringstream sstream;
     sstream << calibrationPath << string("pointcloud/") << string("pointcloud") << setw(2)
             << setfill('0') << n_pc << ".pcd";
 
     //pcl::io::savePLYFileASCII(sstream.str(), cloudFiltered);
-    pcl::io::savePCDFile(sstream.str(), tempCloud, false);
+    pcl::io::savePCDFile(sstream.str(), cloudFiltered, false);
     ROS_INFO_STREAM("Saved: " << sstream.str());
 
     ++n_pc;
@@ -214,7 +214,7 @@ int main (int argc, char** argv) {
         ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic);
     }
     else {
-        //subImg = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
+        subImg = nh.subscribe(pointCloudTopic, 1, pointCloudToImgCallback);
         subCloud = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
         ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic);
     }

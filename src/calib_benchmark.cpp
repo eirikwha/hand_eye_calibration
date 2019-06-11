@@ -27,13 +27,13 @@ int main(int argc, char **argv){
                                 "hand_eye_calibration/data/calib080419/intrinsics.yml";
 
     const char* imgPath = "/home/minion/eirik_ws/src/"
-                          "hand_eye_calibration/data/calib080419/img/";
+                          "hand_eye_calibration/data/calib_110619_chessboard_large/img/";
 
     const char* robotPosePath = "/home/minion/eirik_ws/src/"
-                                "hand_eye_calibration/data/calib080419/pose/";
+                                "hand_eye_calibration/data/calib_110619_chessboard_large/pose/";
 
     const char* extCalibPath = "/home/minion/eirik_ws/src/"
-                               "hand_eye_calibration/data/calib080419/extrinsics.yml";
+                               "hand_eye_calibration/data/calib_110619_chessboard_large/extrinsics.yml";
 
     cv::Mat cameraMatrix, distCoeffs;
     CamParamIO::readCamParams(intrinsicPath,cameraMatrix,distCoeffs);

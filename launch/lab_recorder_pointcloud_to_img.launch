@@ -1,0 +1,30 @@
+<launch>
+
+	<!-- Zivid ROS wrapper node -->
+	<node name="zivid_ros_wrapper" pkg="zivid_ros_wrapper" type="zivid_ros_wrapper_node" >
+       		<param name="camera_config/camera_mode" value="2" />
+	</node>
+	
+	<!-- Zivid ROS republisher -->
+	<node name="zivid_ros_wrapper_service_republisher_node" pkg="zivid_ros_wrapper" 		
+	type="zivid_ros_wrapper_service_republisher_node" output="screen"/>
+
+	<!-- Recorder launch file -->
+	<include file="$(find hand_eye_calibration)/launch/recorder.launch">
+		<arg name = "run_config" value = "pointcloud_to_img"/>
+		
+		<arg name = "visual_data_topic" value= "/pointcloud_republish"/>
+		<arg name="calib_data_folder" value="$(find hand_eye_calibration)/data/calib_110619_chessboard_small/"/>
+	</include>
+	
+	<!-- Kuka interface launch file -->
+
+	<include file="$(find kuka_eki_interface)/launch/kuka_eki_interface.launch">
+	  <arg name="robot_ip" value="192.168.250.16"/>
+	</include>
+
+	
+	<node name="gripper_controller" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperTcpNode.py" args="192.168.250.12" required="true"/>
+	<node name="gripper_simple_controller" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperSimpleController.py" required="true" launch-prefix="xterm -e"/>
+	
+</launch>
