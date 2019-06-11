@@ -74,7 +74,7 @@ namespace HandEye {
             for (int j = i+1; j < tRB_vec.size(); j++) {
                 if (i != j) { // create pairs??
                     AB.A.emplace_back(tRB_vec[i].inverse() * tRB_vec[j]);
-                    AB.B.emplace_back(tCB_vec[i] * tCB_vec[j].inverse());
+                    AB.B.emplace_back(tCB_vec[i].inverse()* tCB_vec[j]);
                 }
             }
         }

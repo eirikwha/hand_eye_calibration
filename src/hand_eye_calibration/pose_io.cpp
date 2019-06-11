@@ -105,7 +105,7 @@ namespace RobotPoseIO {
         q.y() = poseVec[4];
         q.z() = poseVec[5];
         q.w() = poseVec[6];
-        Eigen::Matrix3d m = q.toRotationMatrix();
+        Eigen::Matrix3d m = q.normalized().toRotationMatrix();
 
         t(0, 0) = (double) m(0, 0);
         t(0, 1) = (double) m(0, 1);

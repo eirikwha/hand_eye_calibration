@@ -85,12 +85,12 @@ int main(int argc, char **argv){
 
         Eigen::Vector3d tvec;
         cv::cv2eigen(get<1>(pnp), tvec);
-        tvecs.push_back(tvec*0.001);
+        tvecs.emplace_back(tvec*0.001);
 
         cv::Mat r;
         cv::Rodrigues(get<0>(pnp), r);
         Eigen::Matrix3d rMat;
-        cv::cv2eigen(r, rMat); // TODO: CHECK!!!
+        cv::cv2eigen(r, rMat);
 
         rvecs.push_back(rMat);
 
@@ -117,8 +117,10 @@ int main(int argc, char **argv){
 
     for(int i =0; i<invalidPoses.size(); i++){
         imagelist.erase(imagelist.begin()+ invalidPoses[i]);
-        pointsImage.erase(pointsImage.begin() + i);
-        points3d.erase(points3d.begin() + i);
+        pointsImage.erase(pointsImage.begin() + invalidPoses[i]);
+        points3d.erase(points3d.begin() + invalidPoses[i]);
+        rvecs.erase(rvecs.begin() + invalidPoses[i]);
+        tvecs.erase(tvecs.begin() + invalidPoses[i]);
     }
 
     /// READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
@@ -200,6 +202,7 @@ int main(int argc, char **argv){
             // start with 3 pose pairs
             X = HandEye::performEstimation(AB_tmp);
             cout << X << endl;
+            //cout << "T: " << endl << tRB_vec[i] * (X * tCB_vec[i].inverse()) << endl << endl;
 
             AB_tmp.A.emplace_back(AB.A[i]);
             AB_tmp.B.emplace_back(AB.B[i]);

@@ -86,8 +86,9 @@ int main(){
 
     for(int i =0; i<invalidPoses.size(); i++){
         imagelist.erase(imagelist.begin()+ invalidPoses[i]);
-        pointsImage.erase(pointsImage.begin() + i);
-        points3d.erase(points3d.begin() + i);
+        tCB_vec.erase(tCB_vec.begin() + invalidPoses[i]);
+        pointsImage.erase(pointsImage.begin() + invalidPoses[i]);
+        points3d.erase(points3d.begin() + invalidPoses[i]);
     }
 
     /// READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES
@@ -109,7 +110,7 @@ int main(){
         vector<double> poseVec = RobotPoseIO::readPose(poselist[i]);
         Eigen::Matrix4d t1;
         RobotPoseIO::convertTo4x4(poseVec, t1);
-        t1.block(0, 3, 3, 1) = t1.block(0, 3, 3, 1) * 1000;
+        t1.block(0, 3, 3, 1) = t1.block(0, 3, 3, 1);
         tRB_vec.push_back(t1);
     }
 
@@ -133,7 +134,7 @@ int main(){
                     "See the original paper for further explaination" << endl;
         }
 
-        HandEyeCalib PM(tRB_vec,tCB_vec);
+        HandEyeCalib PM(tRB_vec, tCB_vec);
         X = PM.getX();
         cout << "X:\n" << X << endl << endl;
     }
@@ -150,9 +151,6 @@ int main(){
     for (int i = 0; i < pointsImage.size(); i++){
 
         T.emplace_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
-        //cout << T[i] << endl << endl;
-
-        // TODO: Visualize pose of gripper
 
 #if CALIBRATION_DEBUG
         cout << T[i] << endl << endl;

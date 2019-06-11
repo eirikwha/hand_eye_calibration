@@ -13,6 +13,12 @@ HandEyeCalib::HandEyeCalib(PosePair AB): AB(AB) {
     X = performEstimation();
 }
 
+HandEyeCalib::HandEyeCalib(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec):
+                                                                    tCB_vec(tCB_vec), tRB_vec(tRB_vec) {
+    createPosePairs(tRB_vec,tCB_vec);
+    X = performEstimation();
+}
+
 HandEyeCalib::~HandEyeCalib() = default;
 
 Matrix4d HandEyeCalib::getX(){
@@ -58,11 +64,11 @@ Matrix3d HandEyeCalib::invsqrt(Matrix3d M){
 
 void HandEyeCalib::createPosePairs(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::Matrix4d> tCB_vec){
 
-    for (int i = 0; i < tRB_vec.size(); i++) {
-        for (int j = 0; j < tRB_vec.size(); j++) {
+    for (int i = 0; i < tRB_vec.size(); i++) { //handshake problem
+        for (int j = i+1; j < tRB_vec.size(); j++) {
             if (i != j) { // create pairs??
-                AB.A.emplace_back(tRB_vec[j].inverse() * tRB_vec[i]);
-                AB.B.emplace_back(tCB_vec[j] * tCB_vec[i].inverse());
+                AB.A.emplace_back(tRB_vec[i].inverse() * tRB_vec[j]);
+                AB.B.emplace_back(tCB_vec[i].inverse() * tCB_vec[j]);
             }
         }
     }

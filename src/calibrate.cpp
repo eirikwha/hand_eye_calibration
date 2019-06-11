@@ -12,8 +12,8 @@
 #include <iostream>
 #include <vector>
 
-#define CALIBRATION_DEBUG 0
-#define DEBUG_IMAGES 0
+#define CALIBRATION_DEBUG 1
+#define DEBUG_IMAGES 1
 
 // TODO: Agrs with filepath of poses and images
 int main(){
@@ -156,8 +156,10 @@ int main(){
 
     for(int i =0; i<invalidPoses.size(); i++){
         imagelist.erase(imagelist.begin()+ invalidPoses[i]);
-        pointsImage.erase(pointsImage.begin() + i);
-        points3d.erase(points3d.begin() + i);
+        pointsImage.erase(pointsImage.begin() + invalidPoses[i]);
+        points3d.erase(points3d.begin() + invalidPoses[i]);
+        rvecs.erase(rvecs.begin() + invalidPoses[i]);
+        tvecs.erase(tvecs.begin() + invalidPoses[i]);
     }
 
     /// READ ROBOT END EFFECTOR POSE LIST AND REMOVE POSES WITHOUT MATCHES IN IMAGES

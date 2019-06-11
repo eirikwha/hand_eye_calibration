@@ -105,7 +105,7 @@ void ChessBoardExtrinsics::verifyAndStorePoses() {
     for (int i = 0; i < pointsImage.size(); i++) {
         computeObjectPosePnP(i); // TODO: how to iterate here?
         cv::cv2eigen(tvec, tvecEigen);
-        tvecs.emplace_back(tvecEigen);
+        tvecs.emplace_back(tvecEigen*0.001);
         cv::Mat r;
         cv::Rodrigues(rvec, r);
         cv::cv2eigen(r, rMat); // TODO: CHECK!!!
