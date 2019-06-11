@@ -206,19 +206,31 @@ int main(int argc, char **argv){
 
             cout << "Number of pose pairs: " << AB_tmp.A.size() << endl;
 
-            r11.publish(X(0));
-            r12.publish(X(4));
-            r13.publish(X(8));
-            r21.publish(X(1));
-            r22.publish(X(5));
-            r23.publish(X(9));
-            r31.publish(X(2));
-            r32.publish(X(6));
-            r33.publish(X(10));
+            val.data = X(0);
+            r11.publish(val);
+            val.data = X(4);
+            r12.publish(val);
+            val.data = X(8);
+            r13.publish(val);
+            val.data = X(1);
+            r21.publish(val);
+            val.data = X(5);
+            r22.publish(val);
+            val.data = X(9);
+            r23.publish(val);
+            val.data = X(2);
+            r31.publish(val);
+            val.data = X(6);
+            r32.publish(val);
+            val.data = X(10);
+            r33.publish(val);
 
-            tx.publish(X(12));
-            ty.publish(X(13));
-            tz.publish(X(14));
+            val.data = X(12);
+            tx.publish(val);
+            val.data = X(13);
+            ty.publish(val);
+            val.data = X(14);
+            tz.publish(val);
             ros::Duration(0.1).sleep();
         }
     }
