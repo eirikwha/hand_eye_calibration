@@ -2,17 +2,19 @@
 
 	<!-- Zivid ROS wrapper node -->
 	<node name="zivid_ros_wrapper" pkg="zivid_ros_wrapper" type="zivid_ros_wrapper_node" >
-        <param name="camera_config/camera_mode" value="2" />
+       		<param name="camera_config/camera_mode" value="2" />
 	</node>
 	
 	<!-- Zivid ROS republisher -->
 	<node name="zivid_ros_wrapper_service_republisher_node" pkg="zivid_ros_wrapper" 		
-	type="zivid_ros_wrapper_hdr_republisher_node" output="screen"/>
+	type="zivid_ros_wrapper_service_republisher_node" output="screen"/>
 
 	<!-- Recorder launch file -->
 	<include file="$(find hand_eye_calibration)/launch/recorder.launch">
 		<arg name = "run_config" value = "pointcloud_to_img"/>
-		<arg name="calib_data_folder" value="$(find hand_eye_calibration)/data/calib_110619_chessboard"/>
+		
+		<arg name = "visual_data_topic" value= "/pointcloud_republish"/>
+		<arg name="calib_data_folder" value="$(find hand_eye_calibration)/data/calib_110619_chessboard/"/>
 	</include>
 	
 	<!-- Kuka interface launch file -->

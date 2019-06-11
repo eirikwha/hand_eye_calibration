@@ -119,7 +119,7 @@ void pointCloudToImgCallback(const sensor_msgs::PointCloud2 &cloud) { // TODO: c
         /// Show your results
         namedWindow("Image", CV_WINDOW_AUTOSIZE);
         imshow("Image", color);
-        waitKey(0);
+        waitKey();
 
     ++n_img;
 }
@@ -201,9 +201,6 @@ int main (int argc, char** argv) {
     ros::init(argc, argv, "PoseRecorder");
     ros::NodeHandle nh;
 
-    /// Create a ROS subscriber for the input pose
-    ros::Subscriber subPose = nh.subscribe(poseTopic, 1, poseCallback);
-
     /// Create a ROS subscriber for the input image or pointcloud
     ros::Subscriber subImg;
     ros::Subscriber subCloud;
@@ -221,6 +218,9 @@ int main (int argc, char** argv) {
         subCloud = nh.subscribe(pointCloudTopic, 1, pointCloudCallback);
         ROS_INFO_STREAM("Listening for pointclouds at: " << pointCloudTopic);
     }
+
+    /// Create a ROS subscriber for the input pose
+    ros::Subscriber subPose = nh.subscribe(poseTopic, 1, poseCallback);
 
     ros::spin();
 }

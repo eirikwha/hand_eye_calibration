@@ -1,0 +1,132 @@
+!!python/object/new:dynamic_reconfigure.encoding.Config
+dictitems:
+  bidirectional: false
+  blue_balance: 1.081
+  brightness: 1.0
+  exposure_time: 0.008333
+  filters_contrast_enabled: true
+  filters_contrast_threshold: 5.0
+  filters_gaussian_enabled: false
+  filters_gaussian_sigma: 1.5
+  filters_outlier_enabled: true
+  filters_outlier_threshold: 5.0
+  filters_reflection_enabled: false
+  filters_saturated_enabled: true
+  gain: 2.0
+  groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+    dictitems:
+      groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+        dictitems:
+          zivid_settings: !!python/object/new:dynamic_reconfigure.encoding.Config
+            dictitems:
+              bidirectional: false
+              blue_balance: 1.081
+              brightness: 1.0
+              exposure_time: 0.008333
+              gain: 2.0
+              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                dictitems:
+                  filters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                    dictitems:
+                      groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                        dictitems:
+                          filters_contrast: !!python/object/new:dynamic_reconfigure.encoding.Config
+                            dictitems:
+                              filters_contrast_enabled: true
+                              filters_contrast_threshold: 5.0
+                              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              id: 3
+                              name: filters_contrast
+                              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              parent: 2
+                              state: true
+                              type: ''
+                            state: []
+                          filters_gaussian: !!python/object/new:dynamic_reconfigure.encoding.Config
+                            dictitems:
+                              filters_gaussian_enabled: false
+                              filters_gaussian_sigma: 1.5
+                              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              id: 4
+                              name: filters_gaussian
+                              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              parent: 2
+                              state: true
+                              type: ''
+                            state: []
+                          filters_outlier: !!python/object/new:dynamic_reconfigure.encoding.Config
+                            dictitems:
+                              filters_outlier_enabled: true
+                              filters_outlier_threshold: 5.0
+                              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              id: 5
+                              name: filters_outlier
+                              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              parent: 2
+                              state: true
+                              type: ''
+                            state: []
+                          filters_reflection: !!python/object/new:dynamic_reconfigure.encoding.Config
+                            dictitems:
+                              filters_reflection_enabled: false
+                              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              id: 6
+                              name: filters_reflection
+                              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              parent: 2
+                              state: true
+                              type: ''
+                            state: []
+                          filters_saturated: !!python/object/new:dynamic_reconfigure.encoding.Config
+                            dictitems:
+                              filters_saturated_enabled: true
+                              groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              id: 7
+                              name: filters_saturated
+                              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                                state: []
+                              parent: 2
+                              state: true
+                              type: ''
+                            state: []
+                        state: []
+                      id: 2
+                      name: filters
+                      parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                        state: []
+                      parent: 1
+                      state: true
+                      type: ''
+                    state: []
+                state: []
+              id: 1
+              iris: 22
+              name: zivid_settings
+              parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+                state: []
+              parent: 0
+              red_balance: 1.709
+              state: true
+              type: ''
+            state: []
+        state: []
+      id: 0
+      name: Default
+      parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      parent: 0
+      state: true
+      type: ''
+    state: []
+  iris: 22
+  red_balance: 1.709
+state: []
