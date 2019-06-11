@@ -23,16 +23,16 @@
 
 int main(int argc, char **argv){
 
-    const char* intrinsicPath = "/home/eirik/catkin_ws/src/"
+    const char* intrinsicPath = "/home/minion/eirik_ws/src/"
                                 "hand_eye_calibration/data/calib080419/intrinsics.yml";
 
-    const char* imgPath = "/home/eirik/catkin_ws/src/"
+    const char* imgPath = "/home/minion/eirik_ws/src/"
                           "hand_eye_calibration/data/calib080419/img/";
 
-    const char* robotPosePath = "/home/eirik/catkin_ws/src/"
+    const char* robotPosePath = "/home/minion/eirik_ws/src/"
                                 "hand_eye_calibration/data/calib080419/pose/";
 
-    const char* extCalibPath = "/home/eirik/catkin_ws/src/"
+    const char* extCalibPath = "/home/minion/eirik_ws/src/"
                                "hand_eye_calibration/data/calib080419/extrinsics.yml";
 
     cv::Mat cameraMatrix, distCoeffs;
