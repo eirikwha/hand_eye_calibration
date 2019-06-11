@@ -9,8 +9,7 @@
 using namespace std;
 using namespace Eigen;
 
-HandEyeCalib::HandEyeCalib(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec) {
-    createPosePairs(tRB_vec, tCB_vec);
+HandEyeCalib::HandEyeCalib(PosePair AB): AB(AB) {
     X = performEstimation();
 }
 

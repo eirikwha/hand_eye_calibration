@@ -16,7 +16,7 @@ struct PosePair{
 
 class HandEyeCalib {
 public:
-    HandEyeCalib(std::vector<Eigen::Matrix4d> tRB_vec, std::vector<Eigen::Matrix4d> tCB_vec);
+    HandEyeCalib(PosePair AB);
     ~HandEyeCalib();
 
     Eigen::Matrix4d getX();

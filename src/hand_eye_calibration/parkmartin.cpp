@@ -71,10 +71,10 @@ namespace HandEye {
     PosePair createPosePairs(vector<Eigen::Matrix4d> tRB_vec, vector<Eigen::Matrix4d> tCB_vec) {
         PosePair AB;
         for (int i = 0; i < tRB_vec.size(); i++) {
-            for (int j = i + 1; j < tRB_vec.size(); j++) {
+            for (int j = i+1; j < tRB_vec.size(); j++) {
                 if (i != j) { // create pairs??
-                    AB.A.emplace_back(tRB_vec[j].inverse() * tRB_vec[i]);
-                    AB.B.emplace_back(tCB_vec[j] * tCB_vec[i].inverse());
+                    AB.A.emplace_back(tRB_vec[i].inverse() * tRB_vec[j]);
+                    AB.B.emplace_back(tCB_vec[i] * tCB_vec[j].inverse());
                 }
             }
         }

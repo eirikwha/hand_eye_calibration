@@ -54,7 +54,11 @@ int main() {
     B.push_back(B1);
     B.push_back(B2);
 
-    X = HandEyeCalib(A,B).getX();
+    PosePair AB;
+    AB.A = A;
+    AB.B = B;
+
+    X = HandEyeCalib(AB).getX();
 
     cout << "X:\n" << X << endl;
 

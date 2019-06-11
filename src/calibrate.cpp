@@ -120,13 +120,11 @@ int main(){
 
         Eigen::Vector3d tvec;
         cv::cv2eigen(get<1>(pnp), tvec);
-        tvecs.push_back(tvec);
-
+        tvecs.emplace_back(tvec*0.001);
         cv::Mat r;
         cv::Rodrigues(get<0>(pnp), r);
         Eigen::Matrix3d rMat;
         cv::cv2eigen(r, rMat); // TODO: CHECK!!!
-
         rvecs.push_back(rMat);
 
         cv::Mat img = readColorImage(imagelist[i]);
@@ -184,7 +182,7 @@ int main(){
         vector<double> poseVec = RobotPoseIO::readPose(poselist[i]);
         Eigen::Matrix4d t1;
         RobotPoseIO::convertTo4x4(poseVec,t1);
-        t1.block(0,3,3,1) = t1.block(0,3,3,1) * 1000;
+        t1.block(0,3,3,1) = t1.block(0,3,3,1);
         tRB_vec.push_back(t1);
 
 #if CALIBRATION_DEBUG
@@ -236,7 +234,6 @@ int main(){
         T.emplace_back(tRB_vec[i] * (X * tCB_vec[i].inverse()));
 
         // TODO: Visualize pose of gripper
-
 #if CALIBRATION_DEBUG
         cout << T[i] << endl << endl;
 #endif

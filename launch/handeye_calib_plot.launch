@@ -1,0 +1,13 @@
+<launch>
+
+    <node name = "handeye_benchmark" pkg = "hand_eye_calibration" type = "hand_eye_calibration_benchmark" respawn = "false" output = "screen">
+    </node>
+
+    <node name = "rotation" pkg = "rqt_gui" type = "rqt_gui" respawn = "false" output = "screen"
+        args = "--perspective-file $(find hand_eye_calibration)/rqt_perspective/handeye_plot_rotations.perspective">
+    </node>
+
+    <node name="translation" pkg="rqt_gui" type="rqt_gui" respawn="false" output="screen"
+        args = "--perspective-file $(find hand_eye_calibration)/rqt_perspective/handeye_translation_plot.perspective">
+    </node>
+</launch>

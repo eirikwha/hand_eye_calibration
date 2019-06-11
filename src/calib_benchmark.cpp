@@ -23,17 +23,17 @@
 
 int main(int argc, char **argv){
 
-    const char* intrinsicPath = "/home/minion/eirik_ws/src/"
+    const char* intrinsicPath = "/home/eirik/catkin_ws/src/"
                                 "hand_eye_calibration/data/calib080419/intrinsics.yml";
 
-    const char* imgPath = "/home/minion/eirik_ws/src/"
-                          "hand_eye_calibration/data/calib_110619_chessboard_large/img/";
+    const char* imgPath = "/home/eirik/catkin_ws/src/"
+                          "hand_eye_calibration/data/calib080419/img/";
 
-    const char* robotPosePath = "/home/minion/eirik_ws/src/"
-                                "hand_eye_calibration/data/calib_110619_chessboard_large/pose/";
+    const char* robotPosePath = "/home/eirik/catkin_ws/src/"
+                                "hand_eye_calibration/data/calib080419/pose/";
 
-    const char* extCalibPath = "/home/minion/eirik_ws/src/"
-                               "hand_eye_calibration/data/calib_110619_chessboard_large/extrinsics.yml";
+    const char* extCalibPath = "/home/eirik/catkin_ws/src/"
+                               "hand_eye_calibration/data/calib080419/extrinsics.yml";
 
     cv::Mat cameraMatrix, distCoeffs;
     CamParamIO::readCamParams(intrinsicPath,cameraMatrix,distCoeffs);
@@ -85,7 +85,7 @@ int main(int argc, char **argv){
 
         Eigen::Vector3d tvec;
         cv::cv2eigen(get<1>(pnp), tvec);
-        tvecs.push_back(tvec);
+        tvecs.push_back(tvec*0.001);
 
         cv::Mat r;
         cv::Rodrigues(get<0>(pnp), r);
@@ -143,7 +143,7 @@ int main(int argc, char **argv){
         vector<double> poseVec = RobotPoseIO::readPose(poselist[i]);
         Eigen::Matrix4d t1;
         RobotPoseIO::convertTo4x4(poseVec,t1);
-        t1.block(0,3,3,1) = t1.block(0,3,3,1) * 1000;
+        t1.block(0,3,3,1) = t1.block(0,3,3,1);
         tRB_vec.push_back(t1);
 
         Eigen::Matrix4d t2;
