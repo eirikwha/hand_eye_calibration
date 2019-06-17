@@ -17,6 +17,7 @@
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
@@ -184,7 +185,7 @@ int main(int argc, char **argv){
         ros::Publisher r11, r12, r13, r21, r22, r23, r31, r32, r33, tx, ty, tz;
 
         std_msgs::Float64 val;
-        r11 = n.advertise<std_msgs::Float64>("r11", 1000);
+        /*r11 = n.advertise<std_msgs::Float64>("r11", 1000);
         r12 = n.advertise<std_msgs::Float64>("r12", 1000);
         r13 = n.advertise<std_msgs::Float64>("r13", 1000);
         r21 = n.advertise<std_msgs::Float64>("r21", 1000);
@@ -196,12 +197,17 @@ int main(int argc, char **argv){
 
         tx = n.advertise<std_msgs::Float64>("tx", 1000);
         ty = n.advertise<std_msgs::Float64>("ty", 1000);
-        tz = n.advertise<std_msgs::Float64>("tz", 1000);
+        tz = n.advertise<std_msgs::Float64>("tz", 1000);*/
+        const char* fileName = "/home/eirik/catkin_ws/src/hand_eye_calibration/data/calib080419/extrinsics_plotdata.txt";
+
+        std::ofstream extrinsicFile;
+        extrinsicFile.open(fileName);
 
         for (int i = 3; i < AB.A.size(); i++){
             // start with 3 pose pairs
             X = HandEye::performEstimation(AB_tmp);
             cout << X << endl;
+
             //cout << "T: " << endl << tRB_vec[i] * (X * tCB_vec[i].inverse()) << endl << endl;
 
             AB_tmp.A.emplace_back(AB.A[i]);
@@ -209,7 +215,14 @@ int main(int argc, char **argv){
 
             cout << "Number of pose pairs: " << AB_tmp.A.size() << endl;
 
-            val.data = X(0);
+            char mat[256];
+
+            sprintf(mat, "%lf,lf,%lf,lf,%lf,lf,%lf,lf,%lf,lf,%lf,lf. %lf,lf,%lf, lf, %lf,lf,%lf,lf,%lf,lf,%lf,lf\n",
+                    X(0),X(4),X(8),X(1),X(5),X(9),X(2),X(6),X(10),X(12),X(13),X(14));
+
+            extrinsicFile << mat;
+
+            /*val.data = X(0);
             r11.publish(val);
             val.data = X(4);
             r12.publish(val);
@@ -234,9 +247,22 @@ int main(int argc, char **argv){
             ty.publish(val);
             val.data = X(14);
             tz.publish(val);
-            ros::Duration(0.1).sleep();
+
+
+
+
+            ros::Duration(0.1).sleep();*/
+
+            if (i == 99){
+                break;
+            }
         }
+
+        extrinsicFile.close();
+
     }
+
+    return 0;
 }
 
 
