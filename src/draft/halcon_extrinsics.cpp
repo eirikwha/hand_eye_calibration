@@ -2,7 +2,7 @@
 // Created by eirik on 07.06.19.
 //
 
-#include "hand_eye_calibration_classes/halcon_extrinsics.h"
+#include "halcon_extrinsics.h"
 
 using namespace std;
 
